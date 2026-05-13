@@ -1,47 +1,69 @@
 import type { Campaign } from '@/lib/types';
 
-const tabs = ['Latest Updates', 'Auction Updates', 'Market Competition', 'Buyer Feedback', 'Projections'];
+const tabs = ['Latest Updates', 'Auction Updates', 'Market Competition', 'Buyer Feedback', 'Projections', 'Admin Update'];
 
-const marketSignals = [
+const snapshotCards = [
   {
     kicker: 'Stock tone',
-    title: 'Tight premium stock in focus',
-    body: 'The current read should eventually reflect both suburb-level competition and campaign-specific pressure points.',
+    title: 'TBC',
+    body: 'AI summary of whether local supply feels tight, balanced, or building.',
   },
   {
     kicker: 'Buyer mood',
-    title: 'Measured, active, selective',
-    body: 'Serious buyers are still moving, but they want stronger confidence around value, scarcity, and momentum.',
+    title: 'TBC',
+    body: 'AI read on the confidence level of active buyers in the market.',
   },
   {
     kicker: 'Outlook',
-    title: 'Early-campaign posture matters',
-    body: 'The portal should help the vendor see how early enquiry, contracts out, and competition shape negotiating leverage.',
-    highlight: true,
+    title: 'TBC',
+    body: 'Forward-looking view refreshed daily from the current active source set.',
+    gold: true,
   },
-];
-
-const buyerSignals = [
-  'Warm buyer commentary and objections will live here once report extraction is wired in.',
-  'Contract-holder status and pricing feedback will become readable without needing a long PDF decode.',
-  'Vendor-side messaging will stay plain-English, premium, and useful rather than overly technical.',
 ];
 
 export function VendorShell({ campaign }: { campaign: Campaign }) {
   return (
     <main className="vh-shell">
-      <div style={topRailStyle} className="vh-glass">
-        <div style={brandLockupStyle}>
-          <strong style={{ fontSize: 18, letterSpacing: '0.08em' }}>McGRATH</strong>
-          <span style={topMetaStyle}>Lindfield Vendor Hub</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-          <span style={badgeStyle}>Private campaign view</span>
-          <span style={subtleBadgeStyle}>{campaign.address}, {campaign.suburb}</span>
+      <div style={navWrapStyle} className="vh-glass">
+        <div style={navStyle}>
+          <div style={navLogoStyle}>
+            <span>McGrath logo</span>
+          </div>
+          <div style={navMidStyle}>
+            <span>Vendor Hub</span>
+            <span style={navBadgeStyle}>Master Template</span>
+          </div>
+          <div style={navRightStyle}>Private campaign view</div>
         </div>
       </div>
 
-      <div style={tabRailStyle} className="vh-glass">
+      <section style={heroStyle}>
+        <div style={heroGridStyle}>
+          <div>
+            <div style={heroKickerStyle}>Campaign intelligence dashboard</div>
+            <h1 style={heroHeadingStyle}>
+              {campaign.address},<br />{campaign.suburb}
+            </h1>
+            <p style={heroCopyStyle}>
+              A premium vendor-facing campaign hub built to give a clear view of market movement,
+              buyer sentiment, local competition, and strategic price positioning, all in one place.
+            </p>
+            <div style={heroAgentBandStyle}>
+              <span><strong>Your Agent:</strong> Agent Name <a href="#">View profile</a> · <a href="#">Call mobile</a></span>
+              <span><strong>Campaign Support:</strong> Support Agent / Office <a href="#">View office profile</a> · <a href="#">Call office</a></span>
+              <span><strong>Live Web Link:</strong> <a href="#">Open campaign web page</a></span>
+            </div>
+          </div>
+          <div style={heroMetaGridStyle}>
+            <HeroMetaCard value={campaign.daysOnMarket} label="Days on market" />
+            <HeroMetaCard value={campaign.contractsOut} label="Contracts out" />
+            <HeroMetaCard value={campaign.displayPrice} label="Display price" />
+            <HeroMetaCard value={campaign.campaignHeat} label="Campaign heat" warm />
+          </div>
+        </div>
+      </section>
+
+      <div style={tabsWrapStyle} className="vh-glass">
         <div style={{ display: 'flex', gap: 8, overflowX: 'auto' }}>
           {tabs.map((tab, index) => (
             <button key={tab} style={index === 0 ? activeTabStyle : tabStyle}>{tab}</button>
@@ -49,92 +71,34 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
         </div>
       </div>
 
-      <section style={heroStyle}>
-        <div style={heroOverlayStyle} />
-        <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1.32fr 0.95fr', gap: 24, alignItems: 'end' }}>
-          <div>
-            <div style={heroKickerStyle}>Campaign intelligence dashboard</div>
-            <h1 style={{ margin: '0 0 14px', fontSize: 'clamp(2.6rem, 6vw, 5rem)', lineHeight: 0.94 }}>
-              {campaign.address},<br />{campaign.suburb}
-            </h1>
-            <p style={{ margin: 0, maxWidth: 760, color: 'rgba(255,255,255,0.8)', lineHeight: 1.6, fontSize: 17 }}>
-              A premium campaign portal designed to give vendors a clearer view of local competition, buyer behaviour,
-              campaign momentum, and the strategic story around price and positioning.
-            </p>
-            <div style={heroPeopleRowStyle}>
-              <span><strong>Your agents:</strong> James Sutton · Team McGrath Lindfield</span>
-              <span><strong>Support:</strong> Campaign operations and reporting</span>
-              <span><strong>Status:</strong> Protected live vendor route</span>
-            </div>
-          </div>
-          <div style={heroMetricsGridStyle}>
-            <MetricCard label="Days on market" value={campaign.daysOnMarket} />
-            <MetricCard label="Contracts out" value={campaign.contractsOut} />
-            <MetricCard label="Display price" value={campaign.displayPrice} />
-            <MetricCard label="Campaign heat" value={campaign.campaignHeat} />
-          </div>
-        </div>
-      </section>
-
-      <section style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: 18, marginBottom: 18 }}>
+      <section style={sectionGridStyle}>
         <div className="vh-glass" style={panelStyle}>
-          <div style={panelKickerStyle}>Latest updates</div>
-          <h2 style={sectionTitleStyle}>Daily campaign read</h2>
+          <h2 style={sectionTitleStyle}>Latest Updates</h2>
           <p style={sectionCopyStyle}>
-            This area is where the vendor will receive the clean daily market brief, the translated campaign takeaway,
-            and the practical read on what it means for their sale campaign.
+            This tab is intended to be the same across every vendor hub link. It will become an AI-generated market brief built from the active news articles and sources entered in the protected admin section, then refreshed every 24 hours.
           </p>
           <div style={{ display: 'grid', gap: 14 }}>
-            <Card
-              kicker="AI market brief"
-              title="Broader market movement in plain English"
-              body="A structured read on buyer confidence, available stock, local intensity, and short-term market tone sourced from the article and reporting workflow."
+            <InsightCard
+              kicker="Update method"
+              title="Clearer, cleaner market briefing"
+              body="This tab stays tighter and cleaner by keeping the daily AI market brief here, while auction-rate analysis can live in a clearer dedicated view within the updates workflow."
             />
-            <Card
-              kicker="What it means for your campaign"
-              title="Campaign interpretation, not just raw information"
-              body="The vendor-facing translation layer should connect the broader market story back to this listing, this suburb, and the current campaign stage."
-              highlight
+            <InsightCard
+              kicker="Vendor translation"
+              title="What the market story means for this campaign"
+              body="The vendor-facing interpretation should connect the broader market read back to this home, this suburb, and the campaign stage without cluttering the page."
+              gold
             />
           </div>
         </div>
 
         <div className="vh-glass" style={panelStyle}>
-          <div style={panelKickerStyle}>Market snapshot</div>
-          <h2 style={sectionTitleStyle}>Fast read</h2>
-          <p style={sectionCopyStyle}>A quick-glance summary of supply, buyer tone, and short-term campaign outlook.</p>
+          <h2 style={sectionTitleStyle}>Market Snapshot</h2>
+          <p style={sectionCopyStyle}>A cleaner summary of the daily AI market brief without the auction detail cluttering the page.</p>
           <div style={{ display: 'grid', gap: 14 }}>
-            {marketSignals.map((item) => (
-              <Card key={item.kicker} kicker={item.kicker} title={item.title} body={item.body} highlight={item.highlight} />
+            {snapshotCards.map((card) => (
+              <InsightCard key={card.kicker} kicker={card.kicker} title={card.title} body={card.body} gold={card.gold} />
             ))}
-          </div>
-        </div>
-      </section>
-
-      <section style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
-        <div className="vh-card" style={secondaryPanelStyle}>
-          <div style={panelKickerStyle}>Buyer feedback</div>
-          <h2 style={sectionTitleStyle}>What this section will show</h2>
-          <div style={{ display: 'grid', gap: 12 }}>
-            {buyerSignals.map((item) => (
-              <div key={item} style={signalRowStyle}>
-                <span style={signalDotStyle} />
-                <span>{item}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="vh-card" style={secondaryPanelStyle}>
-          <div style={panelKickerStyle}>Vendor experience</div>
-          <h2 style={sectionTitleStyle}>Built for confidence and clarity</h2>
-          <p style={{ margin: '0 0 16px', color: 'var(--muted)', lineHeight: 1.65 }}>
-            The target experience is a premium seller portal that feels deliberate, readable, and calm while still giving a genuine live read on the campaign.
-          </p>
-          <div style={{ display: 'grid', gap: 12 }}>
-            <InfoStrip label="Auction updates" value="Dedicated local + Sydney clearance view" />
-            <InfoStrip label="Market competition" value="Comparable campaign watchlist and interpretation" />
-            <InfoStrip label="Projections" value="Admin-managed outlook for vendor review" />
           </div>
         </div>
       </section>
@@ -142,38 +106,32 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
   );
 }
 
-function MetricCard({ label, value }: { label: string; value: string }) {
+function HeroMetaCard({ value, label, warm = false }: { value: string; label: string; warm?: boolean }) {
   return (
-    <div style={metricCardStyle}>
-      <strong style={{ display: 'block', fontSize: 26, marginBottom: 8 }}>{value}</strong>
-      <span style={{ fontSize: 12, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.64)' }}>{label}</span>
+    <div style={{ ...heroMetaCardStyle, ...(warm ? heroWarmCardStyle : {}) }}>
+      <strong style={{ display: 'block', fontSize: 30, marginBottom: 8, fontFamily: 'Playfair Display, serif', lineHeight: 1 }}>{value}</strong>
+      <span style={{ fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase', color: warm ? 'rgba(78,54,0,0.7)' : 'rgba(255,255,255,0.62)' }}>{label}</span>
     </div>
   );
 }
 
-function Card({ kicker, title, body, highlight = false }: { kicker: string; title: string; body: string; highlight?: boolean }) {
+function InsightCard({ kicker, title, body, gold = false }: { kicker: string; title: string; body: string; gold?: boolean }) {
   return (
-    <div style={{ ...cardStyle, ...(highlight ? highlightCardStyle : {}) }}>
-      <span style={panelKickerStyle}>{kicker}</span>
-      <div style={{ fontWeight: 800, fontSize: 18, marginBottom: 6 }}>{title}</div>
-      <div style={{ color: 'var(--muted)', lineHeight: 1.6 }}>{body}</div>
+    <div style={{ ...insightCardStyle, ...(gold ? goldCardStyle : {}) }}>
+      <span style={cardKickerStyle}>{kicker}</span>
+      <strong style={{ display: 'block', fontFamily: 'Playfair Display, serif', fontSize: 28, lineHeight: 1.02, marginBottom: 8 }}>{title}</strong>
+      <div style={{ color: 'var(--muted)', lineHeight: 1.58 }}>{body}</div>
     </div>
   );
 }
 
-function InfoStrip({ label, value }: { label: string; value: string }) {
-  return (
-    <div style={infoStripStyle}>
-      <span style={{ color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.12em', fontSize: 11, fontWeight: 800 }}>{label}</span>
-      <strong style={{ fontSize: 15 }}>{value}</strong>
-    </div>
-  );
-}
-
-const topRailStyle = {
+const navWrapStyle = {
   borderRadius: 999,
-  padding: 14,
+  padding: '14px 20px',
   marginBottom: 18,
+} as const;
+
+const navStyle = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
@@ -181,58 +139,39 @@ const topRailStyle = {
   flexWrap: 'wrap',
 } as const;
 
-const brandLockupStyle = {
+const navLogoStyle = {
   display: 'flex',
   alignItems: 'center',
   gap: 12,
-  flexWrap: 'wrap',
+  letterSpacing: '0.24em',
+  fontWeight: 800,
+  fontSize: '0.9rem',
+  minWidth: 180,
 } as const;
 
-const topMetaStyle = {
+const navMidStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 12,
   color: 'var(--muted)',
-  fontSize: 13,
-  letterSpacing: '0.14em',
+  fontSize: '0.82rem',
   textTransform: 'uppercase' as const,
-  fontWeight: 700,
+  letterSpacing: '0.08em',
 } as const;
 
-const badgeStyle = {
+const navBadgeStyle = {
   padding: '8px 12px',
   borderRadius: 999,
-  background: 'linear-gradient(135deg, rgba(230,114,0,0.18), rgba(230,114,0,0.08))',
+  background: 'rgba(230,114,0,0.10)',
   color: 'var(--orange-deep)',
   fontWeight: 700,
 } as const;
 
-const subtleBadgeStyle = {
-  padding: '8px 12px',
-  borderRadius: 999,
-  background: 'rgba(255,255,255,0.62)',
-  border: '1px solid rgba(32,32,32,0.08)',
-  color: 'var(--text)',
-  fontWeight: 600,
-} as const;
-
-const tabRailStyle = {
-  borderRadius: 999,
-  padding: 14,
-  marginBottom: 18,
-} as const;
-
-const tabStyle = {
-  border: 'none',
-  background: 'transparent',
+const navRightStyle = {
   color: 'var(--muted)',
-  fontWeight: 700,
-  padding: '12px 18px',
-  borderRadius: 999,
-} as const;
-
-const activeTabStyle = {
-  ...tabStyle,
-  background: 'linear-gradient(135deg, rgba(230,114,0,0.18), rgba(230,114,0,0.08))',
-  color: 'var(--orange-deep)',
-  boxShadow: 'inset 0 0 0 1px rgba(230,114,0,0.14)',
+  fontSize: '0.82rem',
+  textTransform: 'uppercase' as const,
+  letterSpacing: '0.08em',
 } as const;
 
 const heroStyle = {
@@ -243,19 +182,20 @@ const heroStyle = {
   padding: 34,
   marginBottom: 18,
   boxShadow: '0 28px 58px rgba(25,21,18,0.16)',
-  background: 'linear-gradient(120deg, rgba(19,17,15,0.94) 0%, rgba(28,21,17,0.88) 38%, rgba(49,33,21,0.78) 100%)',
+  background: 'linear-gradient(120deg, rgba(19,17,15,0.86) 0%, rgba(25,21,18,0.70) 38%, rgba(28,22,18,0.48) 62%, rgba(31,24,19,0.64) 100%)',
 } as const;
 
-const heroOverlayStyle = {
-  position: 'absolute' as const,
-  inset: 0,
-  background:
-    'radial-gradient(circle at top right, rgba(230,114,0,0.28), transparent 24%), radial-gradient(circle at bottom left, rgba(255,255,255,0.08), transparent 18%)',
-  pointerEvents: 'none' as const,
+const heroGridStyle = {
+  position: 'relative' as const,
+  zIndex: 1,
+  display: 'grid',
+  gridTemplateColumns: '1.45fr 1fr',
+  gap: 22,
+  alignItems: 'end',
 } as const;
 
 const heroKickerStyle = {
-  fontSize: 12,
+  fontSize: '0.75rem',
   letterSpacing: '0.18em',
   textTransform: 'uppercase' as const,
   color: 'rgba(255,255,255,0.66)',
@@ -263,27 +203,80 @@ const heroKickerStyle = {
   fontWeight: 800,
 } as const;
 
-const heroPeopleRowStyle = {
+const heroHeadingStyle = {
+  margin: '0 0 12px',
+  fontSize: 'clamp(2.4rem, 5vw, 4.6rem)',
+  lineHeight: 0.95,
+} as const;
+
+const heroCopyStyle = {
+  margin: 0,
+  maxWidth: 760,
+  color: 'rgba(255,255,255,0.78)',
+  fontSize: '1rem',
+  lineHeight: 1.55,
+} as const;
+
+const heroAgentBandStyle = {
   marginTop: 18,
   display: 'flex',
   flexWrap: 'wrap' as const,
   gap: '10px 18px',
+  alignItems: 'center',
   color: 'rgba(255,255,255,0.82)',
+  fontSize: '0.95rem',
   lineHeight: 1.5,
 } as const;
 
-const heroMetricsGridStyle = {
+const heroMetaGridStyle = {
   display: 'grid',
   gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
   gap: 12,
 } as const;
 
-const metricCardStyle = {
+const heroMetaCardStyle = {
   borderRadius: 18,
   padding: 16,
   background: 'rgba(255,255,255,0.09)',
   border: '1px solid rgba(255,255,255,0.10)',
-  backdropFilter: 'blur(10px)',
+} as const;
+
+const heroWarmCardStyle = {
+  background: 'linear-gradient(145deg, rgba(255,248,230,0.94) 0%, rgba(255,239,198,0.88) 52%, rgba(255,229,160,0.82) 100%)',
+  border: '1px solid rgba(232,179,72,0.24)',
+  color: '#4d3517',
+} as const;
+
+const tabsWrapStyle = {
+  borderRadius: 999,
+  padding: 10,
+  marginBottom: 22,
+  position: 'sticky' as const,
+  top: 14,
+  zIndex: 20,
+} as const;
+
+const tabStyle = {
+  border: 'none',
+  background: 'transparent',
+  color: 'var(--muted)',
+  fontWeight: 700,
+  padding: '12px 18px',
+  borderRadius: 999,
+  whiteSpace: 'nowrap' as const,
+} as const;
+
+const activeTabStyle = {
+  ...tabStyle,
+  background: 'linear-gradient(135deg, rgba(230,114,0,0.18), rgba(230,114,0,0.08))',
+  color: 'var(--orange-deep)',
+  boxShadow: 'inset 0 0 0 1px rgba(230,114,0,0.14)',
+} as const;
+
+const sectionGridStyle = {
+  display: 'grid',
+  gridTemplateColumns: '1.15fr 0.85fr',
+  gap: 18,
 } as const;
 
 const panelStyle = {
@@ -291,66 +284,39 @@ const panelStyle = {
   padding: 22,
 } as const;
 
-const secondaryPanelStyle = {
-  padding: 22,
-} as const;
-
 const sectionTitleStyle = {
   margin: '0 0 8px',
-  fontSize: 30,
+  fontSize: '1.55rem',
 } as const;
 
 const sectionCopyStyle = {
   margin: '0 0 18px',
   color: 'var(--muted)',
-  lineHeight: 1.65,
+  lineHeight: 1.6,
 } as const;
 
-const cardStyle = {
+const insightCardStyle = {
   borderRadius: 20,
   padding: 18,
   background: 'rgba(255,255,255,0.72)',
   border: '1px solid rgba(32,32,32,0.08)',
+  boxShadow: 'var(--shadow-soft)',
 } as const;
 
-const highlightCardStyle = {
+const goldCardStyle = {
+  position: 'relative' as const,
+  overflow: 'hidden' as const,
   background: 'linear-gradient(145deg, rgba(255,248,230,0.94) 0%, rgba(255,239,198,0.88) 52%, rgba(255,229,160,0.82) 100%)',
   border: '1px solid rgba(232,179,72,0.24)',
+  boxShadow: '0 18px 36px rgba(196,146,39,0.12), inset 0 1px 0 rgba(255,255,255,0.66)',
 } as const;
 
-const panelKickerStyle = {
+const cardKickerStyle = {
   display: 'block',
-  fontSize: 12,
+  fontSize: '0.72rem',
   textTransform: 'uppercase' as const,
   letterSpacing: '0.12em',
   color: 'var(--orange)',
   fontWeight: 800,
   marginBottom: 10,
-} as const;
-
-const signalRowStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 12,
-  padding: '14px 16px',
-  borderRadius: 16,
-  background: 'rgba(255,255,255,0.66)',
-  border: '1px solid rgba(32,32,32,0.08)',
-} as const;
-
-const signalDotStyle = {
-  width: 10,
-  height: 10,
-  borderRadius: 999,
-  background: 'linear-gradient(135deg, var(--orange) 0%, var(--orange-deep) 100%)',
-  flexShrink: 0,
-} as const;
-
-const infoStripStyle = {
-  display: 'grid',
-  gap: 6,
-  padding: '14px 16px',
-  borderRadius: 16,
-  background: 'rgba(255,255,255,0.66)',
-  border: '1px solid rgba(32,32,32,0.08)',
 } as const;
