@@ -147,6 +147,9 @@ const setupItems: SetupItem[] = [
 export function VendorShell({ campaign }: { campaign: Campaign }) {
   const [activeTab, setActiveTab] = useState<VendorTab>('updates');
   const listingUrl = campaign.mcgrathListingUrl || '#';
+  const primaryAgents = campaign.primaryAgents?.length ? campaign.primaryAgents : [];
+  const supportAgent = campaign.supportAgent;
+  const heroImages = campaign.heroImages?.length ? campaign.heroImages : [{ kind: 'hero1', url: campaign.heroImage, altText: campaign.address }];
 
   return (
     <>
@@ -397,6 +400,72 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
           display: grid;
           grid-template-columns: 1.15fr 0.85fr;
           gap: 18px;
+        }
+
+        .vendor-signature-grid {
+          display: grid;
+          grid-template-columns: 1.05fr 0.95fr;
+          gap: 18px;
+          margin-bottom: 18px;
+        }
+
+        .vendor-feature {
+          border-radius: var(--radius-lg);
+          padding: 22px;
+          min-height: 230px;
+          position: relative;
+          overflow: hidden;
+          background: linear-gradient(145deg, rgba(255,255,255,0.68), rgba(255,255,255,0.44));
+          border: 1px solid var(--border);
+          box-shadow: var(--shadow);
+          backdrop-filter: blur(18px);
+          -webkit-backdrop-filter: blur(18px);
+        }
+
+        .vendor-feature::after {
+          content: '';
+          position: absolute;
+          right: -30px;
+          bottom: -45px;
+          width: 180px;
+          height: 180px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(230,114,0,0.14) 0%, rgba(230,114,0,0) 72%);
+        }
+
+        .vendor-feature > * {
+          position: relative;
+          z-index: 1;
+        }
+
+        .vendor-feature h3 {
+          font-family: 'Playfair Display', serif;
+          font-size: 1.6rem;
+          margin: 0 0 10px;
+        }
+
+        .hero-shot-stack {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 12px;
+          margin-top: 16px;
+        }
+
+        .hero-shot {
+          border-radius: 16px;
+          min-height: 122px;
+          background: linear-gradient(145deg, rgba(32,32,32,0.08), rgba(32,32,32,0.03));
+          border: 1px solid rgba(32,32,32,0.08);
+          overflow: hidden;
+          position: relative;
+        }
+
+        .hero-shot img {
+          width: 100%;
+          height: 100%;
+          min-height: 122px;
+          object-fit: cover;
+          display: block;
         }
 
         .panel {
@@ -656,6 +725,7 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
           .metric-grid,
           .insight-grid,
           .form-grid,
+          .vendor-signature-grid,
           .admin-grid,
           .feedback-toggle-row {
             grid-template-columns: 1fr;
@@ -716,12 +786,15 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
               <div className="hero-kicker">Campaign Intelligence Dashboard</div>
               <h1>{campaign.address},<br />{campaign.suburb}</h1>
               <p className="hero-copy">
-                A premium vendor-facing campaign hub built to give a clear view of market movement,
-                buyer sentiment, local competition, and strategic price positioning, all in one place.
+                {campaign.advertisingCopy || 'A premium vendor-facing campaign hub built to give a clear view of market movement, buyer sentiment, local competition, and strategic price positioning, all in one place.'}
               </p>
               <div className="hero-agent-band">
-                <span><strong>Your Agents:</strong> First Agent <a href="#">View profile</a> · Second Agent <a href="#">View profile</a></span>
-                <span><strong>Campaign Support:</strong> Support Person <a href="#">View profile</a> · <a href="tel:+61000000000">Call office</a></span>
+                <span>
+                  <strong>Your Agents:</strong> {renderAgentBand(primaryAgents)}
+                </span>
+                <span>
+                  <strong>Campaign Support:</strong> {supportAgent?.name || 'Support Person'} {supportAgent?.profileUrl ? <a href={supportAgent.profileUrl}>View profile</a> : null} · <a href={supportAgent?.mobile ? `tel:${supportAgent.mobile}` : officeProfileUrl}>Call office</a>
+                </span>
                 <span><strong>Live Web Link:</strong> <a className="mcgrath-link" href={listingUrl}>Open campaign web page</a></span>
               </div>
             </div>
@@ -733,6 +806,30 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
             </div>
           </div>
         </section>
+
+        <div className="vendor-signature-grid">
+          <div className="vendor-feature">
+            <span className="card-kicker">Property Snapshot</span>
+            <h3>{campaign.propertyType || 'Property'} in {campaign.suburb}</h3>
+            <div className="muted">
+              {[campaign.bedrooms ? `${campaign.bedrooms} bed` : '', campaign.bathrooms ? `${campaign.bathrooms} bath` : '', campaign.carSpaces ? `${campaign.carSpaces} car` : '', campaign.landSize || ''].filter(Boolean).join(' · ') || 'Property details will appear here as campaign setup is completed.'}
+            </div>
+            <div className="hero-shot-stack">
+              {heroImages.slice(0, 3).map((image, index) => (
+                <div key={`${image.kind}-${index}`} className="hero-shot">
+                  <img src={image.url} alt={image.altText || `${campaign.address} image ${index + 1}`} />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="vendor-feature">
+            <span className="card-kicker">Strategy Setup</span>
+            <h3>{campaign.campaignMethod || 'Campaign method'} campaign</h3>
+            <div className="muted">
+              {campaign.recommendedStrategyBody || campaign.marketConditions || campaign.notesInternal || 'Strategic positioning, notes, and market feel entered in admin will surface here as the campaign setup becomes more complete.'}
+            </div>
+          </div>
+        </div>
 
         <div className="tabs-wrap">
           <div className="tabs">
@@ -785,7 +882,7 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
               <div className="metric-grid">
                 <MetricCard label="Stock Tone" value="TBC">AI summary of whether local supply feels tight, balanced, or building.</MetricCard>
                 <MetricCard label="Buyer Mood" value="TBC">AI read on the confidence level of active buyers in the market.</MetricCard>
-                <MetricCard label="Outlook" value="TBC" gold>Forward-looking view refreshed daily from the current active article set.</MetricCard>
+                <MetricCard label="Outlook" value={campaign.projectionHeadline || 'TBC'} gold>Forward-looking view refreshed daily from the current active article set.</MetricCard>
               </div>
             </div>
           </div>
@@ -848,7 +945,7 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
               <div className="insight-grid">
                 <InsightCard label="Most Relevant Stock" value="TBC">Will identify which listings genuinely matter to this campaign.</InsightCard>
                 <InsightCard label="Price Pressure" value="TBC">Will summarise where buyers may compare harder on value.</InsightCard>
-                <InsightCard label="Strategic Edge" value="TBC" gold>Will highlight where this property can stand apart from direct rivals.</InsightCard>
+                <InsightCard label="Strategic Edge" value={campaign.compPrimarySuburb || 'TBC'} gold>{campaign.compNotes || 'Will highlight where this property can stand apart from direct rivals.'}</InsightCard>
                 <InsightCard label="Sold Benchmark" value="TBC">Will show which recent result best informs likely buyer expectations.</InsightCard>
               </div>
             </div>
@@ -924,7 +1021,7 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
               <div className="projection-grid">
                 <ProjectionCard kicker="Risk Factors We’re Watching" value="TBC">Potential drags such as weaker clearance rates, rising stock, softer urgency, or stronger competing listings.</ProjectionCard>
                 <ProjectionCard kicker="Opportunity Factors" value="TBC">Positive forces such as thin quality stock, strong presentation, healthy enquiry, or standout local positioning.</ProjectionCard>
-                <ProjectionCard kicker="Recommended Agency Response" value="TBC" gold>The advised selling strategy based on the current balance of evidence, with language framed as analysis rather than certainty.</ProjectionCard>
+                <ProjectionCard kicker="Recommended Agency Response" value={campaign.recommendedStrategyLabel || 'TBC'} gold>{campaign.recommendedStrategyBody || 'The advised selling strategy based on the current balance of evidence, with language framed as analysis rather than certainty.'}</ProjectionCard>
               </div>
             </div>
           </div>
@@ -1044,6 +1141,19 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
       </div>
     </>
   );
+}
+
+function renderAgentBand(agents: Campaign['primaryAgents']) {
+  if (!agents?.length) {
+    return 'Agent details coming soon';
+  }
+
+  return agents.map((agent, index) => (
+    <span key={`${agent.role}-${agent.name}`}>
+      {index > 0 ? ' · ' : ''}
+      {agent.name} {agent.profileUrl ? <a href={agent.profileUrl}>View profile</a> : null}
+    </span>
+  ));
 }
 
 function HeroMetaCard({ value, label, warm = false }: { value: string; label: string; warm?: boolean }) {
