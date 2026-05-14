@@ -29,6 +29,8 @@ export async function createCampaignAction(formData: FormData) {
   const firstAgent = String(formData.get('firstAgent') || '').trim();
   const secondAgent = String(formData.get('secondAgent') || '').trim();
   const supportAgent = String(formData.get('supportAgent') || '').trim();
+  const marketPulse = String(formData.get('marketPulse') || '').trim();
+  const articleUrlsRaw = String(formData.get('articleUrls') || '').trim();
   const hashedPassword = hashCampaignPassword(generatedPassword);
 
   if (!address || !suburb || !slug) {
@@ -103,6 +105,27 @@ export async function createCampaignAction(formData: FormData) {
     });
     if (projectionError) {
       throw new Error(projectionError.message);
+    }
+  }
+
+  if (marketPulse) {
+    const { error: marketError } = await supabase.from('market_conditions_inputs').insert({
+      effective_date: new Date().toISOString().slice(0, 10),
+      entered_by: 'admin',
+      notes: marketPulse,
+    });
+    if (marketError) {
+      throw new Error(marketError.message);
+    }
+  }
+
+  const articleUrls = articleUrlsRaw.split('\n').map((url) => url.trim()).filter(Boolean);
+  if (articleUrls.length) {
+    const { error: articleError } = await supabase.from('article_sources').insert(
+      articleUrls.map((url) => ({ url, status: 'active' })),
+    );
+    if (articleError) {
+      throw new Error(articleError.message);
     }
   }
 

@@ -131,6 +131,16 @@ export function CampaignSetupForm() {
           <Hint>Weekly vendor report is the main buyer-feedback document and should also feed contracts-out extraction.</Hint>
         </Field>
 
+        <Field label="Shared news article inputs">
+          <textarea name="articleUrls" style={textareaStyle} placeholder="Paste one article URL per line. These are shared market inputs that can influence Vendor Hub pages more broadly." />
+          <Hint>This belongs in setup because the broader market brief starts here, not inside the vendor-facing page.</Hint>
+        </Field>
+
+        <Field label="Current market pulse">
+          <textarea name="marketPulse" style={textareaStyle} placeholder="Describe the current market feel, buyer caution, urgency, clearance-rate backdrop, and any on-the-ground pulse that should influence the shared market read." />
+          <Hint>This is the common market lens that should carry across Vendor Hub pages.</Hint>
+        </Field>
+
         <Field label="Initial projections guidance">
           <textarea name="initialProjection" style={textareaStyle} placeholder="Early enquiry is strong. Stay disciplined on guide and focus on building buyer depth before pricing moves." />
           <Hint>Frame this as professional interpretation, not certainty or promise.</Hint>
