@@ -15,6 +15,20 @@ export type CampaignImage = {
   sortOrder?: number;
 };
 
+export type VendorSectionStatus = 'draft' | 'approved';
+
+export type VendorSectionKey = 'updates' | 'auction' | 'competition' | 'feedback' | 'projections';
+
+export type VendorSectionControl = {
+  key: VendorSectionKey;
+  label: string;
+  status: VendorSectionStatus;
+  lastUpdated?: string;
+  internalSummary?: string;
+  vendorSummary?: string;
+  sourceBasis?: string;
+};
+
 export type VendorContent = {
   latestUpdatesSummary?: string;
   latestUpdatesImplication?: string;
@@ -48,6 +62,7 @@ export type VendorContent = {
   opportunityFactors?: string;
   recommendedResponse?: string;
   articleUrls?: string;
+  sectionControls?: VendorSectionControl[];
 };
 
 export type Campaign = {
@@ -89,6 +104,7 @@ export type Campaign = {
   recommendedStrategyBody?: string;
   marketConditions?: string;
   content?: VendorContent;
+  sectionControls?: VendorSectionControl[];
 };
 
 export type CampaignRecord = {

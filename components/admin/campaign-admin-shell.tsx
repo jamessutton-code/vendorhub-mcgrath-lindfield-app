@@ -1,5 +1,6 @@
 import { CampaignSettingsForm } from '@/components/admin/campaign-settings-form';
 import { DocumentUploadPanel } from '@/components/admin/document-upload-panel';
+import { EditorialReviewPanel } from '@/components/admin/editorial-review-panel';
 import { GeneratedOutputsPanel } from '@/components/admin/generated-outputs-panel';
 import type { CampaignAdminData } from '@/lib/campaign-admin';
 import type { UploadHistoryItem } from '@/lib/upload-history';
@@ -57,6 +58,7 @@ export function CampaignAdminShell({ campaign, uploadHistory, outputContent }: C
             Use the live vendor page to review how the current campaign story, feedback, competition, and recommendations present to the client.
           </p>
           <VendorPreviewCard vendorUrl={vendorUrl} slug={campaign.slug} />
+          <EditorialReviewPanel controls={campaign.sectionControls || outputContent.sectionControls || []} />
           <GeneratedOutputsPanel slug={campaign.slug} content={outputContent} />
         </section>
 

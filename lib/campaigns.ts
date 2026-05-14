@@ -140,6 +140,7 @@ function mapCampaignRecord(
     recommendedStrategyBody: projections?.recommended_response || undefined,
     marketConditions: marketConditions?.notes || undefined,
     content,
+    sectionControls: content.sectionControls,
   };
 }
 

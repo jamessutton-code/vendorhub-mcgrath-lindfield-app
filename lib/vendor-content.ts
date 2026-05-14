@@ -1,6 +1,7 @@
 import { fetchAndSummariseArticle } from '@/lib/automation';
 import { sampleCampaign } from '@/lib/mock-data';
 import { getSupabaseServerClient, getSupabaseServiceClient } from '@/lib/supabase-server';
+import type { VendorSectionControl } from '@/lib/types';
 
 export type VendorOutputContent = {
   latestUpdatesSummary: string;
@@ -35,6 +36,7 @@ export type VendorOutputContent = {
   opportunityFactors: string;
   recommendedResponse: string;
   articleUrls: string;
+  sectionControls?: VendorSectionControl[];
 };
 
 export async function getVendorOutputContent(slug: string): Promise<VendorOutputContent> {
@@ -109,7 +111,7 @@ export async function getVendorOutputContent(slug: string): Promise<VendorOutput
   const reaUploads = (uploads || []).filter((upload) => upload.document_type === 'rea');
   const domainUploads = (uploads || []).filter((upload) => upload.document_type === 'domain');
 
-  return {
+  const next: VendorOutputContent = {
     latestUpdatesSummary: sharedUpdate?.market_brief || 'Placeholder for the daily AI-generated summary of buyer confidence, stock levels, competition intensity, and likely short-term direction in the Upper North Shore market.',
     latestUpdatesImplication: sharedUpdate?.campaign_implication_template || 'Placeholder for the vendor-facing interpretation of what the broader market means for this campaign right now.',
     stockTone: sharedUpdate?.stock_tone || 'TBC',
@@ -143,6 +145,9 @@ export async function getVendorOutputContent(slug: string): Promise<VendorOutput
     recommendedResponse: projection?.recommended_response || 'TBC',
     articleUrls: (articleSources || []).map((article) => article.url).join('\n'),
   };
+
+  next.sectionControls = buildSectionControls(next);
+  return next;
 }
 
 export async function saveVendorOutputContent(slug: string, content: VendorOutputContent) {
@@ -238,7 +243,7 @@ export async function saveVendorOutputContent(slug: string, content: VendorOutpu
 }
 
 function getDefaultVendorOutputContent(): VendorOutputContent {
-  return {
+  const next: VendorOutputContent = {
     latestUpdatesSummary: 'Placeholder for the daily AI-generated summary of buyer confidence, stock levels, competition intensity, and likely short-term direction in the Upper North Shore market.',
     latestUpdatesImplication: 'Placeholder for the vendor-facing interpretation of what the broader market means for this campaign right now.',
     stockTone: 'TBC',
@@ -272,4 +277,63 @@ function getDefaultVendorOutputContent(): VendorOutputContent {
     recommendedResponse: 'TBC',
     articleUrls: '',
   };
+
+  next.sectionControls = buildSectionControls(next);
+  return next;
+}
+
+function buildSectionControls(content: VendorOutputContent): VendorSectionControl[] {
+  const today = new Date().toISOString().slice(0, 10);
+
+  return [
+    {
+      key: 'updates',
+      label: 'Latest Updates',
+      status: hasVendorFacingContent([content.latestUpdatesSummary, content.latestUpdatesImplication]) ? 'approved' : 'draft',
+      lastUpdated: today,
+      internalSummary: content.articleUrls || 'No shared article set entered yet.',
+      vendorSummary: content.latestUpdatesSummary || '',
+      sourceBasis: 'Shared article inputs and current market pulse',
+    },
+    {
+      key: 'auction',
+      label: 'Auction Updates',
+      status: hasVendorFacingContent([content.auctionHeadline, content.auctionCommentary]) ? 'approved' : 'draft',
+      lastUpdated: today,
+      internalSummary: [content.sydneyClearance, content.localClearance].filter(Boolean).join(' | ') || 'No auction evidence loaded yet.',
+      vendorSummary: content.auctionHeadline || '',
+      sourceBasis: 'Auction-rate inputs and commentary',
+    },
+    {
+      key: 'competition',
+      label: 'Market Competition',
+      status: hasVendorFacingContent([content.competitionOnMarket, content.competitionSold]) ? 'approved' : 'draft',
+      lastUpdated: today,
+      internalSummary: [content.pricePressure, content.strategicEdge].filter(Boolean).join(' | ') || 'No competition interpretation loaded yet.',
+      vendorSummary: content.competitionOnMarket || '',
+      sourceBasis: 'Campaign-specific competition evidence',
+    },
+    {
+      key: 'feedback',
+      label: 'Buyer Feedback',
+      status: hasVendorFacingContent([content.positiveFeedback, content.watchouts, content.warmHotBuyers]) ? 'approved' : 'draft',
+      lastUpdated: today,
+      internalSummary: [content.contractHolders, content.priceFeedback].filter(Boolean).join(' | ') || 'No feedback evidence loaded yet.',
+      vendorSummary: content.positiveFeedback || '',
+      sourceBasis: 'Vendor reports and buyer response signals',
+    },
+    {
+      key: 'projections',
+      label: 'Projections',
+      status: hasVendorFacingContent([content.marketOutlook, content.recommendedResponse]) ? 'approved' : 'draft',
+      lastUpdated: today,
+      internalSummary: [content.riskFactors, content.opportunityFactors].filter(Boolean).join(' | ') || 'No strategic rationale loaded yet.',
+      vendorSummary: content.recommendedResponse || '',
+      sourceBasis: 'Internal interpretation and recommendation',
+    },
+  ];
+}
+
+function hasVendorFacingContent(values: Array<string | undefined>) {
+  return values.some((value) => Boolean(value && value.trim() && !value.startsWith('Placeholder') && value !== 'TBC'));
 }

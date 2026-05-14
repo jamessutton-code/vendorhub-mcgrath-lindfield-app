@@ -1,5 +1,7 @@
 import { sampleCampaign } from '@/lib/mock-data';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
+import { getVendorOutputContent } from '@/lib/vendor-content';
+import type { VendorSectionControl } from '@/lib/types';
 
 export type CampaignAdminData = {
   slug: string;
@@ -46,6 +48,7 @@ export type CampaignAdminData = {
   recommendedStrategyLabel: string;
   recommendedStrategyBody: string;
   marketConditions: string;
+  sectionControls: VendorSectionControl[];
 };
 
 export async function getCampaignAdminData(slug: string): Promise<CampaignAdminData> {
@@ -65,7 +68,7 @@ export async function getCampaignAdminData(slug: string): Promise<CampaignAdminD
     return mapMockCampaign(slug);
   }
 
-  const [{ data: agents }, { data: images }, { data: compRules }, { data: projections }, { data: marketConditions }] = await Promise.all([
+  const [{ data: agents }, { data: images }, { data: compRules }, { data: projections }, { data: marketConditions }, outputContent] = await Promise.all([
     supabase
       .from('campaign_agents')
       .select('role, name, profile_url, mobile, sort_order')
@@ -96,6 +99,7 @@ export async function getCampaignAdminData(slug: string): Promise<CampaignAdminD
       .order('effective_date', { ascending: false })
       .limit(1)
       .maybeSingle(),
+    getVendorOutputContent(slug),
   ]);
 
   const lead = (agents || []).find((agent) => agent.role === 'lead');
@@ -150,6 +154,7 @@ export async function getCampaignAdminData(slug: string): Promise<CampaignAdminD
     recommendedStrategyLabel: projections?.buyer_behaviour_outlook || '',
     recommendedStrategyBody: projections?.recommended_response || '',
     marketConditions: marketConditions?.notes || '',
+    sectionControls: outputContent.sectionControls || [],
   };
 }
 
@@ -199,5 +204,6 @@ function mapMockCampaign(slug: string): CampaignAdminData {
     recommendedStrategyLabel: sampleCampaign.recommendedStrategyLabel || '',
     recommendedStrategyBody: sampleCampaign.recommendedStrategyBody || '',
     marketConditions: sampleCampaign.marketConditions || '',
+    sectionControls: [],
   };
 }

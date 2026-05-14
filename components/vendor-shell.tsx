@@ -151,6 +151,8 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
   const supportAgent = campaign.supportAgent;
   const heroImages = campaign.heroImages?.length ? campaign.heroImages : [{ kind: 'hero1', url: campaign.heroImage, altText: campaign.address }];
   const content = campaign.content || {};
+  const sectionControls = campaign.sectionControls || [];
+  const approvedCount = sectionControls.filter((section) => section.status === 'approved').length;
 
   return (
     <>
@@ -784,11 +786,16 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
         <section className="hero">
           <div className="hero-grid">
             <div>
-              <div className="hero-kicker">Campaign Intelligence Dashboard</div>
+              <div className="hero-kicker">McGrath Lindfield Vendor Advisory</div>
               <h1>{campaign.address},<br />{campaign.suburb}</h1>
               <p className="hero-copy">
                 {campaign.advertisingCopy || 'A premium vendor-facing campaign hub built to give a clear view of market movement, buyer sentiment, local competition, and strategic price positioning, all in one place.'}
               </p>
+              <div className="hero-agent-band" style={{ marginBottom: 14 }}>
+                <span>
+                  <strong>Campaign advisory status:</strong> {approvedCount} of {sectionControls.length || 5} sections prepared for vendor-facing review
+                </span>
+              </div>
               <div className="hero-agent-band">
                 <span>
                   <strong>Your Agents:</strong> {renderAgentBand(primaryAgents)}
@@ -809,6 +816,13 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
         </section>
 
         <div className="vendor-signature-grid">
+          <div className="vendor-feature">
+            <span className="card-kicker">Campaign Advisory Read</span>
+            <h3>Clearer vendor decision-making</h3>
+            <div className="muted">
+              This portal is designed to turn campaign evidence into a cleaner decision framework: what the market is doing, how buyers are reacting, where competing stock sits, and what the recommended next move should be.
+            </div>
+          </div>
           <div className="vendor-feature">
             <span className="card-kicker">Property Snapshot</span>
             <h3>{campaign.propertyType || 'Property'} in {campaign.suburb}</h3>
