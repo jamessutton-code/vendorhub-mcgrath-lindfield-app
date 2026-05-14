@@ -1025,111 +1025,36 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
         <section id="view-admin" className={`view view-anchor ${activeTab === 'admin' ? 'active' : ''}`}>
           <div className="panel">
             <h2 className="section-title">Admin Update</h2>
-            <p className="section-copy">This tab is intended to be password protected for agency-only updates, file uploads, and strategic recommendation control.</p>
+            <p className="section-copy">The live editing controls now sit on the protected admin route, not inside this vendor-facing tab.</p>
 
-            <div className="admin-grid">
-              <AdminCard kicker="Campaign status controls">
-                <div className="muted">Controls and reference fields for the status strip near the top of the vendor hub. Some fields may become AI-derived rather than manually maintained.</div>
-                <div className="form-grid">
-                  <input type="text" placeholder="Days on market" />
-                  <input type="text" placeholder="Contracts out (AI-derived from weekly vendor report PDF)" />
-                  <input type="text" placeholder="Display price" />
-                  <select defaultValue="">
-                    <option value="" disabled>Campaign heat score</option>
-                    {[1,2,3,4,5,6,7,8,9,10].map((n) => <option key={n}>{n}</option>)}
-                  </select>
-                </div>
-              </AdminCard>
-
-              <AdminCard kicker="Projection controls">
-                <div className="muted">Manual strategy and recommendation updates for the vendor-facing projections tab.</div>
-                <div className="form-grid">
-                  <input type="text" placeholder="Projection headline" />
-                  <input type="text" placeholder="Recommended strategy label" />
-                </div>
-                <div style={{ marginTop: 12 }}>
-                  <textarea placeholder="Write strategic agency recommendation here..." />
-                </div>
-              </AdminCard>
-
-              <AdminCard kicker="McGrath web link">
-                <div className="muted">Use this campaign-level field to add or update the live McGrath listing URL after the vendor hub has already been built. This should exist in every vendor hub because the web link may not be available at launch.</div>
-                <div className="form-grid">
-                  <input type="text" placeholder="Paste live McGrath web listing URL" />
-                  <input type="text" placeholder="Optional label or status, e.g. add later / live" />
+            <div className="article-grid">
+              <div className="article-card gold-card">
+                <span className="card-kicker">Use The Real Admin Surface</span>
+                <div className="article-title">This vendor-side tab is now read-only guidance</div>
+                <div className="muted">
+                  The buttons previously shown here were template placeholders only. Real save, upload, article intake, feedback extraction, and projection editing now live in the protected admin page for this campaign.
                 </div>
                 <div className="admin-actions">
-                  <button className="btn btn-primary" type="button">Save McGrath link</button>
-                </div>
-              </AdminCard>
-
-              <AdminCard kicker="Document uploads">
-                <div className="muted">This area is intended to support PDF uploads for the weekly vendor report, which is primarily buyer feedback but also contains other campaign signals such as contracts out, plus REA reports, Domain reports, McGrath Digital marketing material, and any other campaign files you want analysed.</div>
-                <div className="admin-actions">
-                  <button className="btn btn-primary" type="button">Upload weekly vendor report PDF</button>
-                  <button className="btn btn-secondary" type="button">Upload REA / Domain PDF</button>
-                  <button className="btn btn-secondary" type="button">Upload McGrath Digital PDF</button>
-                </div>
-              </AdminCard>
-
-              <AdminCard kicker="Latest updates article intake">
-                <div className="muted">Add external article URLs here so the system can assess what matters, build a shared vendor-facing market brief, and refresh the wording automatically every day at around 5:00 AM AEST without changing the underlying facts unless the source set changes.</div>
-                <div className="form-grid">
-                  <input type="text" placeholder="Paste article URL" />
-                  <input type="text" placeholder="Headline or source note" />
-                </div>
-                <div style={{ marginTop: 12 }}>
-                  <textarea placeholder="Optional notes on why this article matters..." />
-                </div>
-                <div className="admin-actions">
-                  <button className="btn btn-primary" type="button">Add article</button>
-                  <button className="btn btn-secondary" type="button">Auto-refresh daily ~5:00 AM AEST</button>
-                </div>
-              </AdminCard>
-
-              <AdminCard kicker="Market Conditions Read">
-                <div className="muted">James can describe how the market feels on the ground here. That qualitative read should influence tone across latest updates, auction commentary, projections, and comp commentary during the daily automatic refresh at around 5:00 AM AEST.</div>
-                <div style={{ marginTop: 12 }}>
-                  <textarea placeholder="Write the current on-the-ground market feel here..." />
-                </div>
-                <div className="admin-actions">
-                  <button className="btn btn-primary" type="button">Save market conditions</button>
-                  <button className="btn btn-secondary" type="button">Apply tone across portal</button>
-                </div>
-              </AdminCard>
-
-              <AdminCard kicker="New campaign setup checklist">
-                <div className="muted">Use this guided intake form when building a fresh vendor hub from the master template.</div>
-                <div className="setup-form">
-                  {setupItems.map((item) => (
-                    <div key={item.label} className="setup-item">
-                      <label>{item.label}</label>
-                      {renderSetupField(item)}
-                      <div className="setup-hint">{item.hint}</div>
-                    </div>
-                  ))}
-                </div>
-              </AdminCard>
-
-              <AdminCard kicker="Shared McGrath links">
-                <div className="muted">These are the reusable office and agent profile links available across all vendor hub builds.</div>
-                <div className="muted muted-list">
-                  {mcgrathLinks.map((link) => (
-                    <div key={link.label}>
-                      {link.label}: <a className="mcgrath-link" href={link.href}>{link.text}</a>
-                    </div>
-                  ))}
-                </div>
-              </AdminCard>
-
-              <div className="admin-card gold-card">
-                <span className="card-kicker">Admin lock</span>
-                <div className="muted">Final version will be campaign-specific and password-protected so vendors only see the polished client-facing output while the agency controls inputs and recommendations.</div>
-                <div className="admin-actions">
-                  <button className="btn btn-primary" type="button">Save update</button>
-                  <button className="btn btn-secondary" type="button">Lock admin</button>
+                  <a className="btn btn-primary" href={`/admin/campaigns/${campaign.slug}`}>Open campaign admin</a>
                 </div>
               </div>
+
+              <AdminCard kicker="What To Use In Admin">
+                <div className="muted">Use the protected admin page for:</div>
+                <div className="muted muted-list">
+                  <div>Campaign settings and hero details</div>
+                  <div>Article URL intake and generated output content</div>
+                  <div>Weekly cumulative vendor report inputs</div>
+                  <div>REA, Domain, and McGrath Digital text/report inputs</div>
+                  <div>Projection and recommendation updates</div>
+                </div>
+              </AdminCard>
+
+              <AdminCard kicker="Why This Changed">
+                <div className="muted">
+                  The vendor route should stay presentation-first. The protected admin route is where real forms, save actions, uploads, and automation live so the editing workflow does not break the public campaign view.
+                </div>
+              </AdminCard>
             </div>
           </div>
         </section>
