@@ -42,20 +42,20 @@ export function CampaignAdminShell({ campaign, uploadHistory, outputContent }: C
       </section>
 
       <section style={sectionWrapStyle}>
-        <div style={sectionKickerStyle}>Setup + Shared Inputs</div>
+        <div style={sectionKickerStyle}>Step 1</div>
         <h2 style={sectionHeadingStyle}>Campaign foundation and common market inputs</h2>
         <p style={sectionCopyStyle}>
-          This top section should handle the initial campaign setup and the shared inputs that can influence Vendor Hub pages more broadly.
+          Start here. This top section should handle the initial campaign setup and the shared inputs that can influence Vendor Hub pages more broadly.
         </p>
         <CampaignSettingsForm campaign={campaign} />
       </section>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginTop: 18 }}>
         <section style={sectionWrapStyle}>
-          <div style={sectionKickerStyle}>Vendor-Facing Side</div>
-          <h2 style={sectionHeadingStyle}>What the vendor will actually see</h2>
+          <div style={sectionKickerStyle}>Step 3</div>
+          <h2 style={sectionHeadingStyle}>Editorial review and vendor-facing output</h2>
           <p style={sectionCopyStyle}>
-            Use the live vendor page to review how the current campaign story, feedback, competition, and recommendations present to the client.
+            This is where your team reviews the live presentation, refines the client wording, and explicitly marks sections draft or approved.
           </p>
           <VendorPreviewCard vendorUrl={vendorUrl} slug={campaign.slug} />
           <EditorialReviewPanel controls={campaign.sectionControls || outputContent.sectionControls || []} />
@@ -63,7 +63,7 @@ export function CampaignAdminShell({ campaign, uploadHistory, outputContent }: C
         </section>
 
         <section style={sectionWrapStyle}>
-          <div style={sectionKickerStyle}>Campaign Operations</div>
+          <div style={sectionKickerStyle}>Step 2</div>
           <h2 style={sectionHeadingStyle}>Per-campaign reports, feedback, and market data</h2>
           <p style={sectionCopyStyle}>
             This side is where the operational inputs live for this specific property: weekly feedback reports, REA, Domain, McGrath Digital, and the campaign-level market evidence.

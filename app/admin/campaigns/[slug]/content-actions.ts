@@ -1,6 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import type { VendorSectionControl } from '@/lib/types';
 import { saveVendorOutputContent, type VendorOutputContent } from '@/lib/vendor-content';
 
 export async function saveVendorOutputsAction(formData: FormData) {
@@ -9,6 +10,14 @@ export async function saveVendorOutputsAction(formData: FormData) {
   if (!slug) {
     throw new Error('Campaign slug is required.');
   }
+
+  const sectionControls: VendorSectionControl[] = [
+    buildSectionControl(formData, 'updates', 'Latest Updates'),
+    buildSectionControl(formData, 'auction', 'Auction Updates'),
+    buildSectionControl(formData, 'competition', 'Market Competition'),
+    buildSectionControl(formData, 'feedback', 'Buyer Feedback'),
+    buildSectionControl(formData, 'projections', 'Projections'),
+  ];
 
   const content: VendorOutputContent = {
     latestUpdatesSummary: String(formData.get('latestUpdatesSummary') || '').trim(),
@@ -43,8 +52,21 @@ export async function saveVendorOutputsAction(formData: FormData) {
     opportunityFactors: String(formData.get('opportunityFactors') || '').trim(),
     recommendedResponse: String(formData.get('recommendedResponse') || '').trim(),
     articleUrls: String(formData.get('articleUrls') || '').trim(),
+    sectionControls,
   };
 
   await saveVendorOutputContent(slug, content);
   redirect(`/admin/campaigns/${slug}?outputs=1`);
+}
+
+function buildSectionControl(formData: FormData, key: VendorSectionControl['key'], label: string): VendorSectionControl {
+  return {
+    key,
+    label,
+    status: String(formData.get(`${key}Status`) || 'draft').trim() === 'approved' ? 'approved' : 'draft',
+    lastUpdated: new Date().toISOString().slice(0, 10),
+    internalSummary: String(formData.get(`${key}InternalSummary`) || '').trim(),
+    vendorSummary: String(formData.get(`${key}VendorSummary`) || '').trim(),
+    sourceBasis: String(formData.get(`${key}SourceBasis`) || '').trim(),
+  };
 }

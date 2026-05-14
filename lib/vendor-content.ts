@@ -59,13 +59,13 @@ export async function getVendorOutputContent(slug: string): Promise<VendorOutput
   const [{ data: sharedUpdate }, { data: auctionUpdate }, { data: compSnapshot }, { data: projection }, { data: uploads }, { data: articleSources }] = await Promise.all([
     supabase
       .from('shared_market_updates')
-      .select('market_brief, campaign_implication_template, stock_tone, buyer_mood, outlook')
+      .select('market_brief, campaign_implication_template, stock_tone, buyer_mood, outlook, source_summary')
       .order('effective_date', { ascending: false })
       .limit(1)
       .maybeSingle(),
     supabase
       .from('auction_updates')
-      .select('commentary, sydney_clearance_rate, local_clearance_rate, local_suburbs_scope')
+      .select('commentary, sydney_clearance_rate, local_clearance_rate, local_suburbs_scope, approved_at')
       .order('effective_date', { ascending: false })
       .limit(1)
       .maybeSingle(),
@@ -96,27 +96,28 @@ export async function getVendorOutputContent(slug: string): Promise<VendorOutput
   ]);
 
   const vendorReportUploads = (uploads || []).filter((upload) => upload.document_type === 'vendor_report');
-  const vendorReportUploadNames = vendorReportUploads.map((upload) => upload.file_name);
   let vendorExtraction = null;
 
-  if (vendorReportUploadNames.length) {
+  if (vendorReportUploads.length) {
     const { data: extractionRows } = await supabase
       .from('vendor_report_extractions')
-      .select('warm_buyer_summary, hot_buyer_summary, contract_holder_summary, price_feedback_summary, positive_themes_summary, watchouts_summary, upload_id')
+      .select('warm_buyer_summary, hot_buyer_summary, contract_holder_summary, price_feedback_summary, positive_themes_summary, watchouts_summary')
       .order('extracted_at', { ascending: false })
-      .limit(10);
+      .limit(1);
 
     vendorExtraction = extractionRows?.[0] || null;
   }
+
   const reaUploads = (uploads || []).filter((upload) => upload.document_type === 'rea');
   const domainUploads = (uploads || []).filter((upload) => upload.document_type === 'domain');
+  const persistedControls = parseSectionControls(sharedUpdate?.source_summary || '');
 
   const next: VendorOutputContent = {
     latestUpdatesSummary: sharedUpdate?.market_brief || 'Placeholder for the daily AI-generated summary of buyer confidence, stock levels, competition intensity, and likely short-term direction in the Upper North Shore market.',
     latestUpdatesImplication: sharedUpdate?.campaign_implication_template || 'Placeholder for the vendor-facing interpretation of what the broader market means for this campaign right now.',
     stockTone: sharedUpdate?.stock_tone || 'TBC',
     buyerMood: sharedUpdate?.buyer_mood || 'TBC',
-    outlook: sharedUpdate?.outlook || (projection?.market_outlook || 'TBC'),
+    outlook: sharedUpdate?.outlook || projection?.market_outlook || 'TBC',
     auctionHeadline: auctionUpdate?.commentary || 'Placeholder for AI commentary combining Sydney clearance rates with local reads from SQM Research across the relevant campaign suburbs.',
     auctionCommentary: auctionUpdate?.local_suburbs_scope || 'Auction data should refresh automatically each day at around 5:00 AM AEST on the same cadence as the latest news brief.',
     sydneyClearance: auctionUpdate?.sydney_clearance_rate || 'TBC',
@@ -146,7 +147,7 @@ export async function getVendorOutputContent(slug: string): Promise<VendorOutput
     articleUrls: (articleSources || []).map((article) => article.url).join('\n'),
   };
 
-  next.sectionControls = buildSectionControls(next);
+  next.sectionControls = persistedControls.length ? persistedControls : buildSectionControls(next);
   return next;
 }
 
@@ -168,6 +169,8 @@ export async function saveVendorOutputContent(slug: string, content: VendorOutpu
   }
 
   const today = new Date().toISOString().slice(0, 10);
+  const controls = content.sectionControls || buildSectionControls(content);
+  const controlsNote = JSON.stringify(controls);
 
   await Promise.all([
     supabase.from('shared_market_updates').insert({
@@ -177,6 +180,8 @@ export async function saveVendorOutputContent(slug: string, content: VendorOutpu
       stock_tone: content.stockTone || null,
       buyer_mood: content.buyerMood || null,
       outlook: content.outlook || null,
+      source_summary: controlsNote,
+      approved_at: controls.find((control) => control.key === 'updates')?.status === 'approved' ? new Date().toISOString() : null,
     }),
     supabase.from('auction_updates').insert({
       effective_date: today,
@@ -184,6 +189,7 @@ export async function saveVendorOutputContent(slug: string, content: VendorOutpu
       sydney_clearance_rate: content.sydneyClearance || null,
       local_clearance_rate: content.localClearance || null,
       local_suburbs_scope: content.auctionCommentary || null,
+      approved_at: controls.find((control) => control.key === 'auction')?.status === 'approved' ? new Date().toISOString() : null,
     }),
     supabase.from('campaign_comp_snapshots').insert({
       campaign_id: campaign.id,
@@ -192,6 +198,7 @@ export async function saveVendorOutputContent(slug: string, content: VendorOutpu
       sold_summary: content.competitionSold || null,
       price_pressure_read: content.pricePressure || null,
       strategic_edge_read: content.strategicEdge || null,
+      approved_at: controls.find((control) => control.key === 'competition')?.status === 'approved' ? new Date().toISOString() : null,
     }),
     supabase.from('campaign_projections').insert({
       campaign_id: campaign.id,
@@ -203,6 +210,7 @@ export async function saveVendorOutputContent(slug: string, content: VendorOutpu
       risk_factors: content.riskFactors || null,
       opportunity_factors: content.opportunityFactors || null,
       recommended_response: content.recommendedResponse || null,
+      approved_at: controls.find((control) => control.key === 'projections')?.status === 'approved' ? new Date().toISOString() : null,
     }),
     supabase.from('market_conditions_inputs').insert({
       effective_date: today,
@@ -211,10 +219,7 @@ export async function saveVendorOutputContent(slug: string, content: VendorOutpu
     }),
   ]);
 
-  const urls = content.articleUrls
-    .split('\n')
-    .map((url) => url.trim())
-    .filter(Boolean);
+  const urls = content.articleUrls.split('\n').map((url) => url.trim()).filter(Boolean);
 
   if (urls.length) {
     for (const url of urls) {
@@ -233,8 +238,9 @@ export async function saveVendorOutputContent(slug: string, content: VendorOutpu
       .eq('status', 'active')
       .order('created_at', { ascending: true });
 
-    if ((activeArticles || []).length > 15) {
-      const overflow = activeArticles!.slice(0, activeArticles!.length - 15).map((article) => article.id);
+    const activeList = activeArticles || [];
+    if (activeList.length > 15) {
+      const overflow = activeList.slice(0, activeList.length - 15).map((article) => article.id);
       if (overflow.length) {
         await supabase.from('article_sources').delete().in('id', overflow);
       }
@@ -336,4 +342,14 @@ function buildSectionControls(content: VendorOutputContent): VendorSectionContro
 
 function hasVendorFacingContent(values: Array<string | undefined>) {
   return values.some((value) => Boolean(value && value.trim() && !value.startsWith('Placeholder') && value !== 'TBC'));
+}
+
+function parseSectionControls(value: string): VendorSectionControl[] {
+  if (!value) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
 }
