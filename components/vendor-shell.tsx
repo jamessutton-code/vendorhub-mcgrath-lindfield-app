@@ -1,20 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import type { Campaign } from '@/lib/types';
+import { useMemo, useState } from 'react';
+import type { Campaign, VendorSectionControl, VendorSectionKey } from '@/lib/types';
 
 type VendorTab = 'updates' | 'auction' | 'competition' | 'feedback' | 'projections' | 'admin';
-
-type SetupItem = {
-  label: string;
-  placeholder: string;
-  hint: string;
-  multiline?: boolean;
-  select?: boolean;
-  options?: string[];
-  dualSelect?: boolean;
-  secondaryPlaceholder?: string;
-};
 
 const tabs: Array<{ id: VendorTab; label: string }> = [
   { id: 'updates', label: 'Latest Updates' },
@@ -25,124 +14,7 @@ const tabs: Array<{ id: VendorTab; label: string }> = [
   { id: 'admin', label: 'Admin Update' },
 ];
 
-const agentOptions = ['James Sutton', 'Brie Dickson', 'Cam Henderson', 'John Malek', 'Olivia Liu', 'Richard Madden', 'Will Geist'];
-const supportOptions = ['Ashley Coates', 'Savanna-Rose McGaw', 'Sharon Richardson'];
 const officeProfileUrl = 'https://www.mcgrath.com.au/offices/lindfield-a0v5g000003JhTaAAK';
-
-const mcgrathLinks = [
-  { label: 'Office', href: officeProfileUrl, text: 'McGrath Lindfield' },
-  { label: 'James Sutton', href: 'https://www.mcgrath.com.au/agents/james-sutton-a1V5g0000007PDMEA2', text: 'Profile' },
-  { label: 'Brie Dickson', href: 'https://www.mcgrath.com.au/agents/brie-dickson-a1VRE000000y4dR2AQ', text: 'Profile' },
-  { label: 'Cam Henderson', href: 'https://www.mcgrath.com.au/agents/cam-henderson-a1V5g0000007my6EAA', text: 'Profile' },
-  { label: 'John Malek', href: 'https://www.mcgrath.com.au/agents/john-malek-a1VRE000001K4bZ2AS', text: 'Profile' },
-  { label: 'Olivia Liu', href: 'https://www.mcgrath.com.au/agents/olivia-liu-a1VRE000000jeXZ2AY', text: 'Profile' },
-  { label: 'Richard Madden', href: 'https://www.mcgrath.com.au/agents/richard-madden-a1V5g0000007PPQEA2', text: 'Profile' },
-  { label: 'Will Geist', href: 'https://www.mcgrath.com.au/agents/will-geist-a1V5g0000007PV8EAM', text: 'Profile' },
-  { label: 'Ashley Coates', href: 'https://www.mcgrath.com.au/agents/ashley-coates-a1VRE000000yntt2AA', text: 'Profile' },
-  { label: 'Savanna-Rose McGaw', href: 'https://www.mcgrath.com.au/agents/savanna-rose-mcgaw-a1VRE000001YvrJ2AS', text: 'Profile' },
-  { label: 'Sharon Richardson', href: 'https://www.mcgrath.com.au/agents/sharon-richardson-a1V5g000005oEPdEAM', text: 'Profile' },
-];
-
-const setupItems: SetupItem[] = [
-  {
-    label: '1. Full property address and preferred URL slug',
-    placeholder: 'Example: 7 Wyvern Avenue, Roseville / slug: 7-wyvern-avenue-roseville',
-    hint: 'Format recommendation: full address first, then a clean lowercase slug using hyphens only.',
-  },
-  {
-    label: '2. Campaign password',
-    placeholder: 'Example: Prestige27',
-    hint: 'Format recommendation: auto-generate using a real-estate term plus a number, e.g. Auction24, Harbour18, Prestige27.',
-  },
-  {
-    label: '3. Bedrooms, bathrooms, car spaces, and land size',
-    placeholder: 'Example: 3 bed, 3 bath, 2 car, 860sqm',
-    hint: 'Format recommendation: keep this in a short property-spec line so comp matching can use it directly.',
-  },
-  {
-    label: '4. Property type, standout features, and advertising copywriting',
-    placeholder: 'Example: Renovated family home with north-to-rear garden, flexible living zones, and strong indoor-outdoor flow...\n\nPaste campaign copy here.',
-    hint: 'Format recommendation: include both a short feature summary and the actual ad copy if already written.',
-    multiline: true,
-  },
-  {
-    label: '5. Display price or guide range',
-    placeholder: 'Example: $2.7m-$3.0m',
-    hint: 'Format recommendation: use the public-facing guide exactly as it should appear on the page.',
-  },
-  {
-    label: '6. Date the property goes on market',
-    placeholder: 'Example: 18 May 2026',
-    hint: 'Format recommendation: use a readable date because this will drive days-on-market tracking.',
-  },
-  {
-    label: '7. Campaign method',
-    placeholder: 'Example: Auction',
-    hint: 'Format recommendation: keep to Auction, Private Treaty, or Off-Market.',
-  },
-  {
-    label: '8. Sales agents working on the property',
-    placeholder: 'Select first agent',
-    secondaryPlaceholder: 'Select second agent',
-    hint: 'Use the shared McGrath agent roster here. The hero should show both first and second agent together under Your Agents.',
-    select: true,
-    dualSelect: true,
-    options: agentOptions,
-  },
-  {
-    label: '9. Campaign support person',
-    placeholder: 'Select campaign support',
-    hint: 'Choose the office support person who will help run the campaign. This should display separately from the sales agents.',
-    select: true,
-    options: supportOptions,
-  },
-  {
-    label: '10. Agent mobile numbers or campaign-specific contact notes',
-    placeholder: 'Example: James Sutton | 04xx xxx xxx\nBrie Dickson | 04xx xxx xxx',
-    hint: 'Profile URLs can come from the shared roster. Use this field for direct mobile numbers and any campaign-specific contact notes.',
-    multiline: true,
-  },
-  {
-    label: '11. McGrath web listing URL',
-    placeholder: 'Example: Add later if not yet live',
-    hint: 'Format recommendation: use the live URL if available, otherwise note add later.',
-  },
-  {
-    label: '12. Three hero images for the page build',
-    placeholder: 'Example: front exterior / garden / living room',
-    hint: 'Format recommendation: nominate the three strongest images in display order.',
-    multiline: true,
-  },
-  {
-    label: '13. Suburb and comp rules for Market Competition',
-    placeholder: 'Example: Roseville only, 3 bed only, +/-10% of display price, similar family-home product',
-    hint: 'Format recommendation: define suburb, bedrooms, price band, and any must-match product filters.',
-    multiline: true,
-  },
-  {
-    label: '14. Starting campaign heat score and contracts-out count',
-    placeholder: 'Example: Heat 6/10, Contracts out 2',
-    hint: 'Format recommendation: use a heat score out of 10. Contracts out should eventually be read automatically from the weekly vendor report PDF.',
-  },
-  {
-    label: '15. Available vendor report, REA, Domain, and McGrath Digital reports',
-    placeholder: 'Example: Vendor report PDF week 1, REA report 10 May, Domain report 10 May, McGrath Digital social report 10 May',
-    hint: 'Format recommendation: list files by source and date. The weekly vendor report is primarily buyer feedback and should also be used to extract contracts-out data. McGrath Digital should capture social-media marketing reporting.',
-    multiline: true,
-  },
-  {
-    label: '16. Initial projection / recommendation',
-    placeholder: 'Example: Early enquiry is strong. Stay disciplined on guide and focus on building buyer depth before making any pricing move.',
-    hint: 'Format recommendation: write this as professional analysis and guidance, not certainty or guarantee.',
-    multiline: true,
-  },
-  {
-    label: '17. Campaign-specific notes, sensitivities, or positioning instructions',
-    placeholder: 'Example: Vendor sensitive to discount language. Emphasise quality scarcity and family appeal.',
-    hint: 'Format recommendation: include anything that should shape tone, positioning, or what should be avoided.',
-    multiline: true,
-  },
-];
 
 export function VendorShell({ campaign }: { campaign: Campaign }) {
   const [activeTab, setActiveTab] = useState<VendorTab>('updates');
@@ -154,38 +26,38 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
   const sectionControls = campaign.sectionControls || [];
   const approvedCount = sectionControls.filter((section) => section.status === 'approved').length;
 
+  const controlMap = useMemo(() => indexControls(sectionControls), [sectionControls]);
+
   return (
     <>
       <style jsx>{`
         .site-shell {
-          width: min(1280px, calc(100% - 32px));
+          width: min(1220px, calc(100% - 44px));
           margin: 0 auto;
-          padding: 22px 0 48px;
+          padding: 28px 0 72px;
         }
 
         .nav-wrap,
         .tabs-wrap,
-        .glass-card,
-        .metric-card,
         .panel,
+        .vendor-feature,
         .insight-card,
-        .feedback-card,
-        .projection-card,
-        .admin-card,
-        .empty-card,
         .article-card,
-        .comp-card {
-          background: var(--card);
-          border: 1px solid var(--border);
-          box-shadow: var(--shadow);
+        .note-card,
+        .status-card,
+        .admin-card,
+        .locked-card {
+          background: rgba(255,255,255,0.72);
+          border: 1px solid rgba(32,32,32,0.08);
+          box-shadow: 0 22px 48px rgba(33,27,20,0.08);
           backdrop-filter: blur(18px);
           -webkit-backdrop-filter: blur(18px);
         }
 
         .nav-wrap {
           border-radius: 999px;
-          padding: 14px 20px;
-          margin-bottom: 18px;
+          padding: 15px 22px;
+          margin-bottom: 22px;
         }
 
         .nav {
@@ -193,15 +65,6 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
           align-items: center;
           justify-content: space-between;
           gap: 16px;
-        }
-
-        .nav-logo {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          letter-spacing: 0.24em;
-          font-weight: 800;
-          font-size: 0.9rem;
         }
 
         .nav-logo-mark {
@@ -216,7 +79,7 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
           align-items: center;
           gap: 12px;
           color: var(--muted);
-          font-size: 0.82rem;
+          font-size: 0.8rem;
           text-transform: uppercase;
           letter-spacing: 0.08em;
         }
@@ -232,124 +95,170 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
         .hero {
           position: relative;
           overflow: hidden;
-          border-radius: var(--radius-xl);
+          border-radius: 36px;
           background-image:
-            linear-gradient(120deg, rgba(19,17,15,0.86) 0%, rgba(25,21,18,0.70) 38%, rgba(28,22,18,0.48) 62%, rgba(31,24,19,0.64) 100%),
+            linear-gradient(120deg, rgba(18,16,14,0.78) 0%, rgba(24,21,18,0.58) 42%, rgba(30,24,20,0.40) 100%),
             url('${campaign.heroImage}');
           background-size: cover;
           background-position: center center;
           color: white;
-          padding: 34px;
-          margin-bottom: 18px;
-          box-shadow: 0 28px 58px rgba(25,21,18,0.16);
+          padding: 42px;
+          margin-bottom: 28px;
+          box-shadow: 0 34px 64px rgba(25,21,18,0.18);
         }
 
         .hero::after {
           content: '';
           position: absolute;
-          right: -90px;
+          right: -110px;
           bottom: -120px;
           width: 360px;
           height: 360px;
           border-radius: 50%;
-          background: radial-gradient(circle, rgba(230,114,0,0.42) 0%, rgba(230,114,0,0) 70%);
+          background: radial-gradient(circle, rgba(230,114,0,0.24) 0%, rgba(230,114,0,0) 72%);
         }
 
         .hero-grid {
           position: relative;
           z-index: 1;
           display: grid;
-          grid-template-columns: 1.45fr 1fr;
-          gap: 22px;
+          grid-template-columns: 1.3fr 0.7fr;
+          gap: 28px;
           align-items: end;
         }
 
         .hero-kicker {
-          font-size: 0.75rem;
+          font-size: 0.76rem;
           letter-spacing: 0.18em;
           text-transform: uppercase;
           color: rgba(255,255,255,0.66);
-          margin-bottom: 10px;
+          margin-bottom: 12px;
           font-weight: 800;
         }
 
         .hero h1 {
           font-family: 'Playfair Display', serif;
-          font-size: clamp(2.4rem, 5vw, 4.6rem);
-          line-height: 0.95;
-          margin: 0 0 12px;
+          font-size: clamp(2.8rem, 5vw, 5rem);
+          line-height: 0.96;
+          margin: 0 0 16px;
         }
 
         .hero-copy {
           margin: 0;
           max-width: 760px;
-          color: rgba(255,255,255,0.78);
-          font-size: 1rem;
-          line-height: 1.55;
+          color: rgba(255,255,255,0.82);
+          font-size: 1.02rem;
+          line-height: 1.72;
         }
 
-        .hero-agent-band {
+        .hero-band {
           margin-top: 18px;
           display: flex;
           flex-wrap: wrap;
-          gap: 10px 18px;
-          align-items: center;
-          color: rgba(255,255,255,0.82);
-          font-size: 0.95rem;
-          line-height: 1.5;
+          gap: 12px 18px;
+          color: rgba(255,255,255,0.84);
+          font-size: 0.94rem;
+          line-height: 1.55;
         }
 
-        .hero-agent-band strong {
+        .hero-band strong {
           color: white;
           font-weight: 800;
         }
 
-        .hero-agent-band a,
+        .hero-band a,
         .mcgrath-link {
-          color: var(--orange-deep);
+          color: #ffc98b;
           font-weight: 700;
           text-decoration: none;
         }
 
-        .hero-agent-band a:hover,
+        .hero-band a:hover,
         .mcgrath-link:hover {
           text-decoration: underline;
         }
 
         .hero-meta-grid {
           display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 12px;
+          gap: 14px;
         }
 
         .hero-meta-card {
-          border-radius: 18px;
-          padding: 16px;
-          background: rgba(255,255,255,0.09);
-          border: 1px solid rgba(255,255,255,0.10);
+          border-radius: 22px;
+          padding: 18px 18px 16px;
+          background: rgba(255,255,255,0.10);
+          border: 1px solid rgba(255,255,255,0.12);
         }
 
         .hero-meta-card strong {
           display: block;
-          font-size: 1.28rem;
-          margin-bottom: 6px;
+          font-size: 1.5rem;
+          margin-bottom: 8px;
+          font-family: 'Playfair Display', serif;
         }
 
         .hero-meta-card span {
-          font-size: 0.75rem;
-          letter-spacing: 0.08em;
+          font-size: 0.74rem;
+          letter-spacing: 0.12em;
           text-transform: uppercase;
           color: rgba(255,255,255,0.62);
         }
 
-        .hero-meta-card.heat-warm {
-          background: linear-gradient(145deg, rgba(255,248,230,0.94) 0%, rgba(255,239,198,0.88) 52%, rgba(255,229,160,0.82) 100%);
-          border-color: rgba(232,179,72,0.24);
+        .status-card {
+          border-radius: 22px;
+          padding: 22px;
+          background: linear-gradient(145deg, rgba(255,248,230,0.96), rgba(255,239,198,0.88));
+          border: 1px solid rgba(232,179,72,0.24);
+          color: #49331a;
         }
 
-        .hero-meta-card.heat-warm strong,
-        .hero-meta-card.heat-warm span {
-          color: #4d3517;
+        .status-card strong {
+          display: block;
+          font-family: 'Playfair Display', serif;
+          font-size: 1.8rem;
+          margin-bottom: 6px;
+        }
+
+        .feature-band {
+          display: grid;
+          grid-template-columns: 1.15fr 0.85fr;
+          gap: 18px;
+          margin-bottom: 28px;
+        }
+
+        .vendor-feature {
+          border-radius: 28px;
+          padding: 28px;
+          background: linear-gradient(145deg, rgba(255,255,255,0.72), rgba(255,255,255,0.48));
+        }
+
+        .vendor-feature h3 {
+          font-family: 'Playfair Display', serif;
+          font-size: 1.8rem;
+          margin: 0 0 10px;
+        }
+
+        .hero-shot-stack {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 14px;
+          margin-top: 22px;
+        }
+
+        .hero-shot {
+          border-radius: 18px;
+          min-height: 138px;
+          overflow: hidden;
+          background: rgba(32,32,32,0.06);
+          border: 1px solid rgba(32,32,32,0.08);
+        }
+
+        .hero-shot img {
+          width: 100%;
+          height: 100%;
+          min-height: 138px;
+          object-fit: cover;
+          display: block;
         }
 
         .tabs-wrap {
@@ -358,7 +267,7 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
           position: sticky;
           top: 14px;
           z-index: 20;
-          margin-bottom: 22px;
+          margin-bottom: 26px;
         }
 
         .tabs {
@@ -386,7 +295,7 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
         }
 
         .tab-btn.active {
-          background: linear-gradient(135deg, rgba(230,114,0,0.18), rgba(230,114,0,0.08));
+          background: linear-gradient(135deg, rgba(230,114,0,0.16), rgba(230,114,0,0.08));
           color: var(--orange-deep);
           box-shadow: inset 0 0 0 1px rgba(230,114,0,0.14);
         }
@@ -399,180 +308,43 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
           display: block;
         }
 
-        .section-grid {
-          display: grid;
-          grid-template-columns: 1.15fr 0.85fr;
-          gap: 18px;
-        }
-
-        .vendor-signature-grid {
-          display: grid;
-          grid-template-columns: 1.05fr 0.95fr;
-          gap: 18px;
-          margin-bottom: 18px;
-        }
-
-        .vendor-feature {
-          border-radius: var(--radius-lg);
-          padding: 22px;
-          min-height: 230px;
-          position: relative;
-          overflow: hidden;
-          background: linear-gradient(145deg, rgba(255,255,255,0.68), rgba(255,255,255,0.44));
-          border: 1px solid var(--border);
-          box-shadow: var(--shadow);
-          backdrop-filter: blur(18px);
-          -webkit-backdrop-filter: blur(18px);
-        }
-
-        .vendor-feature::after {
-          content: '';
-          position: absolute;
-          right: -30px;
-          bottom: -45px;
-          width: 180px;
-          height: 180px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(230,114,0,0.14) 0%, rgba(230,114,0,0) 72%);
-        }
-
-        .vendor-feature > * {
-          position: relative;
-          z-index: 1;
-        }
-
-        .vendor-feature h3 {
-          font-family: 'Playfair Display', serif;
-          font-size: 1.6rem;
-          margin: 0 0 10px;
-        }
-
-        .hero-shot-stack {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 12px;
-          margin-top: 16px;
-        }
-
-        .hero-shot {
-          border-radius: 16px;
-          min-height: 122px;
-          background: linear-gradient(145deg, rgba(32,32,32,0.08), rgba(32,32,32,0.03));
-          border: 1px solid rgba(32,32,32,0.08);
-          overflow: hidden;
-          position: relative;
-        }
-
-        .hero-shot img {
-          width: 100%;
-          height: 100%;
-          min-height: 122px;
-          object-fit: cover;
-          display: block;
-        }
-
         .panel {
-          border-radius: var(--radius-lg);
-          padding: 22px;
+          border-radius: 30px;
+          padding: 32px;
         }
 
         .section-title {
           font-family: 'Playfair Display', serif;
-          font-size: 1.55rem;
-          margin: 0 0 8px;
+          font-size: 2rem;
+          margin: 0 0 10px;
         }
 
         .section-copy {
-          margin: 0 0 18px;
+          margin: 0 0 24px;
           color: var(--muted);
-          line-height: 1.6;
+          line-height: 1.75;
+          max-width: 760px;
         }
 
-        .metric-grid,
-        .insight-grid,
-        .feedback-grid,
-        .projection-grid,
-        .article-grid,
-        .comp-grid,
-        .setup-form {
+        .section-stack {
           display: grid;
-          gap: 14px;
-        }
-
-        .feedback-toggle-row {
-          display: grid;
-          gap: 14px;
-          margin: 0 0 18px;
-          grid-template-columns: repeat(4, minmax(0, 1fr));
-        }
-
-        .toggle-pill {
-          border-radius: 20px;
-          padding: 18px;
-          background: var(--card-strong);
-          border: 1px solid var(--border);
-          box-shadow: var(--shadow-soft);
-          backdrop-filter: blur(18px);
-          -webkit-backdrop-filter: blur(18px);
-          cursor: pointer;
-          font-weight: 700;
-          color: var(--muted);
-          transition: 0.2s ease;
-        }
-
-        .toggle-pill.active {
-          background: linear-gradient(135deg, rgba(230,114,0,0.18), rgba(230,114,0,0.08));
-          color: var(--orange-deep);
-          box-shadow: inset 0 0 0 1px rgba(230,114,0,0.14);
-        }
-
-        .admin-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
           gap: 18px;
         }
 
-        .setup-item {
-          padding: 16px;
-          border-radius: 18px;
-          background: rgba(32,32,32,0.04);
-          border: 1px solid rgba(32,32,32,0.06);
-        }
-
-        .setup-item label {
-          display: block;
-          font-weight: 800;
-          margin-bottom: 8px;
-          color: var(--text);
-        }
-
-        .setup-hint {
-          margin-top: 8px;
-          color: var(--muted);
-          font-size: 0.88rem;
-          line-height: 1.5;
-        }
-
-        .metric-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-        .insight-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .feedback-grid,
-        .projection-grid,
-        .article-grid,
-        .comp-grid { grid-template-columns: 1fr; }
-
-        .metric-card,
-        .insight-card,
-        .feedback-card,
-        .projection-card,
         .article-card,
-        .comp-card,
+        .insight-card,
+        .note-card,
         .admin-card,
-        .empty-card {
-          border-radius: 20px;
-          padding: 18px;
+        .locked-card {
+          border-radius: 24px;
+          padding: 22px;
         }
 
-        .metric-label,
+        .article-card.gold {
+          background: linear-gradient(145deg, rgba(255,248,230,0.96), rgba(255,239,198,0.88));
+          border-color: rgba(232,179,72,0.24);
+        }
+
         .card-kicker,
         .tiny-label {
           display: block;
@@ -584,138 +356,32 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
           margin-bottom: 10px;
         }
 
-        .metric-value,
-        .insight-card strong,
-        .projection-card strong,
-        .comp-price {
+        .article-title,
+        .insight-card strong {
           display: block;
           font-family: 'Playfair Display', serif;
-          font-size: 1.7rem;
-          line-height: 1;
-          margin-bottom: 8px;
+          font-size: 1.38rem;
+          line-height: 1.2;
+          margin-bottom: 10px;
         }
 
         .muted {
           color: var(--muted);
-          line-height: 1.55;
+          line-height: 1.72;
         }
 
-        .gold-card {
-          position: relative;
-          overflow: hidden;
-          background: linear-gradient(145deg, rgba(255,248,230,0.94) 0%, rgba(255,239,198,0.88) 52%, rgba(255,229,160,0.82) 100%);
-          border: 1px solid rgba(232,179,72,0.24);
-          box-shadow: 0 18px 36px rgba(196,146,39,0.12), inset 0 1px 0 rgba(255,255,255,0.66);
-        }
-
-        .gold-card::after {
-          content: '';
-          position: absolute;
-          top: -38px;
-          right: -32px;
-          width: 140px;
-          height: 140px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0) 72%);
-        }
-
-        .gold-card > * {
-          position: relative;
-          z-index: 1;
-        }
-
-        .feedback-card.good {
-          box-shadow: inset 0 0 0 1px rgba(31,138,87,0.14), var(--shadow-soft);
-        }
-
-        .feedback-card.watchout {
-          box-shadow: inset 0 0 0 1px rgba(230,114,0,0.14), var(--shadow-soft);
-        }
-
-        .feedback-chip-row,
-        .chip-row {
-          display: flex;
-          gap: 8px;
-          flex-wrap: wrap;
-          margin-top: 12px;
-        }
-
-        .chip {
-          padding: 8px 12px;
-          border-radius: 999px;
-          font-size: 0.8rem;
-          font-weight: 700;
-          background: rgba(32,32,32,0.06);
-          color: var(--text);
-        }
-
-        .chip.hot {
-          background: rgba(230,114,0,0.14);
-          color: var(--orange-deep);
-        }
-
-        .chip.warm {
-          background: rgba(215,165,58,0.16);
-          color: #8f6500;
-        }
-
-        .comp-card-head {
-          display: flex;
-          align-items: start;
-          justify-content: space-between;
-          gap: 16px;
-          margin-bottom: 10px;
-        }
-
-        .comp-title,
-        .article-title {
-          font-weight: 800;
-          font-size: 1rem;
-          margin-bottom: 6px;
-        }
-
-        .admin-actions,
-        .form-grid {
-          margin-top: 14px;
-        }
-
-        .admin-actions {
-          display: flex;
-          gap: 10px;
-          flex-wrap: wrap;
-        }
-
-        .btn {
-          border: none;
-          border-radius: 999px;
-          padding: 12px 16px;
-          cursor: pointer;
-          font-family: inherit;
-          font-weight: 700;
-        }
-
-        .btn-primary {
-          background: linear-gradient(135deg, var(--orange), var(--orange-deep));
-          color: white;
-        }
-
-        .btn-secondary {
-          background: rgba(32,32,32,0.06);
-          color: var(--text);
-        }
-
-        .admin-card {
-          margin-top: 18px;
-        }
-
-        .form-grid {
+        .insight-grid {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 12px;
+          gap: 16px;
         }
 
-        .muted-list {
-          margin-top: 12px;
+        .note-card {
+          background: rgba(249,247,242,0.92);
+        }
+
+        .locked-card {
+          background: linear-gradient(145deg, rgba(250,245,238,0.98), rgba(247,242,235,0.92));
         }
 
         .view-anchor {
@@ -724,34 +390,28 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
 
         @media (max-width: 1040px) {
           .hero-grid,
-          .section-grid,
-          .metric-grid,
-          .insight-grid,
-          .form-grid,
-          .vendor-signature-grid,
-          .admin-grid,
-          .feedback-toggle-row {
+          .feature-band,
+          .insight-grid {
             grid-template-columns: 1fr;
           }
         }
 
         @media (max-width: 780px) {
           .site-shell {
-            width: min(100%, calc(100% - 18px));
-            padding-top: 12px;
+            width: min(100%, calc(100% - 20px));
+            padding-top: 14px;
           }
 
           .hero,
           .panel,
-          .metric-card,
-          .insight-card,
-          .feedback-card,
-          .projection-card,
+          .vendor-feature,
           .article-card,
-          .comp-card,
+          .insight-card,
+          .note-card,
           .admin-card,
-          .empty-card {
-            padding: 18px 16px;
+          .locked-card,
+          .status-card {
+            padding: 22px 18px;
           }
 
           .nav {
@@ -764,7 +424,11 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
           }
 
           .hero h1 {
-            font-size: 2.35rem;
+            font-size: 2.5rem;
+          }
+
+          .hero-shot-stack {
+            grid-template-columns: 1fr;
           }
         }
       `}</style>
@@ -772,14 +436,12 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
       <div className="site-shell">
         <div className="nav-wrap">
           <div className="nav">
-            <div className="nav-logo">
-              <img className="nav-logo-mark" src="/mcgrath-logo.png" alt="McGrath logo" />
-            </div>
+            <img className="nav-logo-mark" src="/mcgrath-logo.png" alt="McGrath logo" />
             <div className="nav-mid">
               <span>Vendor Hub</span>
-              <span className="nav-badge">Master Template</span>
+              <span className="nav-badge">Private campaign view</span>
             </div>
-            <div className="nav-mid">Private campaign view</div>
+            <div className="nav-mid">McGrath Lindfield</div>
           </div>
         </div>
 
@@ -791,18 +453,9 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
               <p className="hero-copy">
                 {campaign.advertisingCopy || 'A premium vendor-facing campaign hub built to give a clear view of market movement, buyer sentiment, local competition, and strategic price positioning, all in one place.'}
               </p>
-              <div className="hero-agent-band" style={{ marginBottom: 14 }}>
-                <span>
-                  <strong>Campaign advisory status:</strong> {approvedCount} of {sectionControls.length || 5} sections prepared for vendor-facing review
-                </span>
-              </div>
-              <div className="hero-agent-band">
-                <span>
-                  <strong>Your Agents:</strong> {renderAgentBand(primaryAgents)}
-                </span>
-                <span>
-                  <strong>Campaign Support:</strong> {supportAgent?.name || 'Support Person'} {supportAgent?.profileUrl ? <a href={supportAgent.profileUrl}>View profile</a> : null} · <a href={supportAgent?.mobile ? `tel:${supportAgent.mobile}` : officeProfileUrl}>Call office</a>
-                </span>
+              <div className="hero-band">
+                <span><strong>Your Agents:</strong> {renderAgentBand(primaryAgents)}</span>
+                <span><strong>Campaign Support:</strong> {supportAgent?.name || 'Support Person'} {supportAgent?.profileUrl ? <a href={supportAgent.profileUrl}>View profile</a> : null} · <a href={supportAgent?.mobile ? `tel:${supportAgent.mobile}` : officeProfileUrl}>Call office</a></span>
                 <span><strong>Live Web Link:</strong> <a className="mcgrath-link" href={listingUrl}>Open campaign web page</a></span>
               </div>
             </div>
@@ -810,24 +463,20 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
               <HeroMetaCard value={campaign.daysOnMarket} label="Days on market" />
               <HeroMetaCard value={campaign.contractsOut} label="Contracts out" />
               <HeroMetaCard value={campaign.displayPrice} label="Display price" />
-              <HeroMetaCard value={campaign.campaignHeat} label="Campaign heat" warm />
+              <div className="status-card">
+                <strong>{approvedCount} / {sectionControls.length || 5}</strong>
+                <span>Sections approved for vendor-facing review</span>
+              </div>
             </div>
           </div>
         </section>
 
-        <div className="vendor-signature-grid">
+        <div className="feature-band">
           <div className="vendor-feature">
             <span className="card-kicker">Campaign Advisory Read</span>
             <h3>Clearer vendor decision-making</h3>
             <div className="muted">
               This portal is designed to turn campaign evidence into a cleaner decision framework: what the market is doing, how buyers are reacting, where competing stock sits, and what the recommended next move should be.
-            </div>
-          </div>
-          <div className="vendor-feature">
-            <span className="card-kicker">Property Snapshot</span>
-            <h3>{campaign.propertyType || 'Property'} in {campaign.suburb}</h3>
-            <div className="muted">
-              {[campaign.bedrooms ? `${campaign.bedrooms} bed` : '', campaign.bathrooms ? `${campaign.bathrooms} bath` : '', campaign.carSpaces ? `${campaign.carSpaces} car` : '', campaign.landSize || ''].filter(Boolean).join(' · ') || 'Property details will appear here as campaign setup is completed.'}
             </div>
             <div className="hero-shot-stack">
               {heroImages.slice(0, 3).map((image, index) => (
@@ -837,11 +486,16 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
               ))}
             </div>
           </div>
+
           <div className="vendor-feature">
-            <span className="card-kicker">Strategy Setup</span>
-            <h3>{campaign.campaignMethod || 'Campaign method'} campaign</h3>
+            <span className="card-kicker">Property Snapshot</span>
+            <h3>{campaign.propertyType || 'Property'} in {campaign.suburb}</h3>
             <div className="muted">
-              {campaign.recommendedStrategyBody || campaign.marketConditions || campaign.notesInternal || 'Strategic positioning, notes, and market feel entered in admin will surface here as the campaign setup becomes more complete.'}
+              {[campaign.bedrooms ? `${campaign.bedrooms} bed` : '', campaign.bathrooms ? `${campaign.bathrooms} bath` : '', campaign.carSpaces ? `${campaign.carSpaces} car` : '', campaign.landSize || ''].filter(Boolean).join(' · ') || 'Property details will appear here as campaign setup is completed.'}
+            </div>
+            <div className="note-card" style={{ marginTop: 22 }}>
+              <span className="tiny-label">Campaign Positioning</span>
+              <div className="muted">{campaign.recommendedStrategyBody || campaign.marketConditions || campaign.notesInternal || 'Strategic positioning, notes, and market feel entered in admin will surface here as the campaign setup becomes more complete.'}</div>
             </div>
           </div>
         </div>
@@ -852,7 +506,6 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
               <button
                 key={tab.id}
                 className={`tab-btn ${activeTab === tab.id ? 'active' : ''}`}
-                data-tab={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
               >
@@ -863,212 +516,113 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
         </div>
 
         <section id="view-updates" className={`view view-anchor ${activeTab === 'updates' ? 'active' : ''}`}>
-          <div className="section-grid">
-            <div className="panel">
-              <h2 className="section-title">Latest Updates</h2>
-              <p className="section-copy">
-                This tab is intended to be the same across every vendor hub link. It will become an AI-generated market brief
-                built from the active news articles and sources entered in the protected admin section, then refreshed every 24 hours.
-              </p>
-
-              <div className="article-grid">
-                <ArticleCard kicker="Update Method">
-                  This tab stays tighter and cleaner by keeping the daily AI market brief here, while detailed auction-rate analysis can live in a cleaner dedicated view within the updates workflow.
-                </ArticleCard>
-                <ArticleCard kicker="AI Market Brief" title="Clear read on the current market">
-                  {content.latestUpdatesSummary || 'Placeholder for the daily AI-generated summary of buyer confidence, stock levels, competition intensity, and likely short-term direction in the Upper North Shore market.'}
-                </ArticleCard>
-                <ArticleCard kicker="What This Means For Your Campaign" title="Market interpretation for this vendor audience" gold>
-                  {content.latestUpdatesImplication || 'Placeholder for the AI-generated vendor-facing interpretation of the broader market: whether conditions favour urgency, patience, sharper pricing discipline, or a stronger focus on buyer depth and negotiation pressure.'}
-                </ArticleCard>
-                <ArticleCard kicker="Refresh Logic">
-                  Market updates shown here will be prepared behind the scenes in the protected admin area,
-                  where article URLs are added and assessed. The website should then refresh this briefing every 24 hours,
-                  rewording and re-framing the commentary while staying anchored to the active source material.
-                </ArticleCard>
+          <div className="panel">
+            <h2 className="section-title">Latest Updates</h2>
+            <p className="section-copy">A concise, vendor-ready read on the broader market and what it means for this campaign right now.</p>
+            {renderApprovedSection(controlMap.updates, (
+              <div className="section-stack">
+                <ArticleCard kicker="Market Brief" title="Clear read on the current market">{content.latestUpdatesSummary || 'No market brief has been approved yet.'}</ArticleCard>
+                <ArticleCard kicker="Campaign Implication" title="What this means for your campaign" gold>{content.latestUpdatesImplication || 'No campaign implication has been approved yet.'}</ArticleCard>
+                <div className="insight-grid">
+                  <InsightCard label="Stock Tone" value={content.stockTone || 'TBC'}>How local supply currently feels.</InsightCard>
+                  <InsightCard label="Buyer Mood" value={content.buyerMood || 'TBC'}>Confidence and decisiveness in active buyers.</InsightCard>
+                  <InsightCard label="Outlook" value={content.outlook || campaign.projectionHeadline || 'TBC'}>Short-form forward-looking read.</InsightCard>
+                  <InsightCard label="Source Basis" value={controlMap.updates.sourceBasis || 'TBC'}>{controlMap.updates.internalSummary || 'No internal basis recorded yet.'}</InsightCard>
+                </div>
               </div>
-            </div>
-
-            <div className="panel">
-              <h2 className="section-title">Market Snapshot</h2>
-              <p className="section-copy">A cleaner summary of the daily AI market brief without the auction detail cluttering the page.</p>
-              <div className="metric-grid">
-                <MetricCard label="Stock Tone" value={content.stockTone || 'TBC'}>AI summary of whether local supply feels tight, balanced, or building.</MetricCard>
-                <MetricCard label="Buyer Mood" value={content.buyerMood || 'TBC'}>AI read on the confidence level of active buyers in the market.</MetricCard>
-                <MetricCard label="Outlook" value={content.outlook || campaign.projectionHeadline || 'TBC'} gold>Forward-looking view refreshed daily from the current active article set.</MetricCard>
-              </div>
-            </div>
+            ))}
           </div>
         </section>
 
         <section id="view-auction" className={`view view-anchor ${activeTab === 'auction' ? 'active' : ''}`}>
-          <div className="section-grid">
-            <div className="panel">
-              <h2 className="section-title">Auction Updates</h2>
-              <p className="section-copy">
-                This tab will house the SQM Research read, including Sydney clearance rates, local clearance rates,
-                and AI commentary on what auction conditions mean for the current market.
-              </p>
-              <div className="article-grid">
-                <ArticleCard kicker="Auction Clearance Read" title="Sydney + local market pulse" gold>
-                  {content.auctionHeadline || 'Placeholder for AI commentary combining Sydney clearance rates with local reads from SQM Research across the relevant campaign suburbs.'}
-                </ArticleCard>
-                <ArticleCard kicker="Update Logic">
-                  {content.auctionCommentary || 'Auction data should refresh automatically each day at around 5:00 AM AEST on the same cadence as the latest news brief, so the vendor portal stays current even when commentary is being reworded from the same source set.'}
-                </ArticleCard>
+          <div className="panel">
+            <h2 className="section-title">Auction Updates</h2>
+            <p className="section-copy">A cleaner view of auction conditions and what they signal about buyer urgency and confidence.</p>
+            {renderApprovedSection(controlMap.auction, (
+              <div className="section-stack">
+                <ArticleCard kicker="Auction Commentary" title="Sydney and local auction pulse">{content.auctionHeadline || 'No auction commentary has been approved yet.'}</ArticleCard>
+                <div className="insight-grid">
+                  <InsightCard label="Sydney Clearance" value={content.sydneyClearance || 'TBC'}>Weekly Sydney auction context.</InsightCard>
+                  <InsightCard label="Local Clearance" value={content.localClearance || 'TBC'}>Relevant local suburb read.</InsightCard>
+                  <InsightCard label="Auction Pulse" value={content.auctionPulse || 'TBC'}>Interpretation of current clearance conditions.</InsightCard>
+                  <InsightCard label="Source Basis" value={controlMap.auction.sourceBasis || 'TBC'}>{controlMap.auction.internalSummary || 'No internal basis recorded yet.'}</InsightCard>
+                </div>
               </div>
-            </div>
-
-            <div className="panel">
-              <h2 className="section-title">Auction Pulse</h2>
-              <p className="section-copy">A clear, vendor-friendly read of the weekly clearance environment.</p>
-              <div className="metric-grid">
-                <MetricCard label="Sydney Clearance" value={content.sydneyClearance || 'TBC'}>Weekly Sydney clearance context sourced from SQM.</MetricCard>
-                <MetricCard label="Local Clearance" value={content.localClearance || 'TBC'}>Combined read across the relevant local suburbs for this campaign.</MetricCard>
-                <MetricCard label="Auction Commentary" value={content.auctionPulse || 'TBC'} gold>Short AI interpretation of what those clearance rates mean for current conditions.</MetricCard>
-              </div>
-            </div>
+            ))}
           </div>
         </section>
 
         <section id="view-competition" className={`view view-anchor ${activeTab === 'competition' ? 'active' : ''}`}>
-          <div className="section-grid">
-            <div className="panel">
-              <h2 className="section-title">Market Competition</h2>
-              <p className="section-copy">
-                This section will show only the most relevant competing and comparable listings, both on market and sold,
-                translated into a clean client-facing story rather than a messy spreadsheet. Comp data should also refresh automatically each day at around 5:00 AM AEST.
-              </p>
-
-              <div className="comp-grid">
-                <CompCard kicker="Comparable Group" title="Primary competition set" chip="On Market">
-                  {content.competitionOnMarket || 'Placeholder for the most directly relevant active competitors in the subject suburb and nearby premium pockets.'}
-                </CompCard>
-                <CompCard kicker="Sold Evidence" title="Recent result set" chip="Sold" chipClass="warm">
-                  {content.competitionSold || 'Placeholder for selected sold comparables that help anchor buyer perception, pricing confidence, and likely campaign positioning.'}
-                </CompCard>
+          <div className="panel">
+            <h2 className="section-title">Market Competition</h2>
+            <p className="section-copy">A focused interpretation of the stock and recent results that genuinely matter to this campaign.</p>
+            {renderApprovedSection(controlMap.competition, (
+              <div className="section-stack">
+                <ArticleCard kicker="On-Market Competition" title="Current comparable set">{content.competitionOnMarket || 'No on-market competition summary has been approved yet.'}</ArticleCard>
+                <ArticleCard kicker="Sold Evidence" title="Recent benchmark evidence">{content.competitionSold || 'No sold benchmark summary has been approved yet.'}</ArticleCard>
+                <div className="insight-grid">
+                  <InsightCard label="Primary Competition Area" value={campaign.compPrimarySuburb || 'TBC'}>Most relevant comparable geography.</InsightCard>
+                  <InsightCard label="Price Pressure" value={content.pricePressure || 'TBC'}>Where buyers may compare hardest on value.</InsightCard>
+                  <InsightCard label="Strategic Edge" value={content.strategicEdge || campaign.compPrimarySuburb || 'TBC'}>{campaign.compNotes || 'Where this property can stand apart.'}</InsightCard>
+                  <InsightCard label="Source Basis" value={controlMap.competition.sourceBasis || 'TBC'}>{controlMap.competition.internalSummary || 'No internal basis recorded yet.'}</InsightCard>
+                </div>
               </div>
-            </div>
-
-            <div className="panel">
-              <h2 className="section-title">Competition Read</h2>
-              <p className="section-copy">A simpler, more vendor-friendly interpretation of the local battleground.</p>
-              <div className="insight-grid">
-                <InsightCard label="Most Relevant Stock" value={campaign.compPrimarySuburb || 'TBC'}>Will identify which listings genuinely matter to this campaign.</InsightCard>
-                <InsightCard label="Price Pressure" value={content.pricePressure || 'TBC'}>Will summarise where buyers may compare harder on value.</InsightCard>
-                <InsightCard label="Strategic Edge" value={content.strategicEdge || campaign.compPrimarySuburb || 'TBC'} gold>{campaign.compNotes || 'Will highlight where this property can stand apart from direct rivals.'}</InsightCard>
-                <InsightCard label="Sold Benchmark" value={content.soldBenchmark || 'TBC'}>Will show which recent result best informs likely buyer expectations.</InsightCard>
-              </div>
-            </div>
+            ))}
           </div>
         </section>
 
         <section id="view-feedback" className={`view view-anchor ${activeTab === 'feedback' ? 'active' : ''}`}>
-          <div className="section-grid">
-            <div className="panel">
-              <h2 className="section-title">Buyer Feedback</h2>
-              <p className="section-copy">
-                This section will analyse buyer feedback PDFs and campaign reporting, separating the positive signals,
-                friction points, and the buyers showing the strongest intent.
-              </p>
-
-              <div className="feedback-toggle-row">
-                <button className="toggle-pill active" type="button">Warm Buyers</button>
-                <button className="toggle-pill" type="button">Hot Buyers</button>
-                <button className="toggle-pill" type="button">Contract Holders</button>
-                <button className="toggle-pill" type="button">Price Feedback</button>
+          <div className="panel">
+            <h2 className="section-title">Buyer Feedback</h2>
+            <p className="section-copy">An organised view of what buyers are responding to, what needs managing, and where genuine intent sits.</p>
+            {renderApprovedSection(controlMap.feedback, (
+              <div className="section-stack">
+                <ArticleCard kicker="What’s Landing Well" title="Positive buyer response">{content.positiveFeedback || 'No positive buyer-feedback summary has been approved yet.'}</ArticleCard>
+                <ArticleCard kicker="What Needs Managing" title="Recurring objections and friction points">{content.watchouts || 'No watchout summary has been approved yet.'}</ArticleCard>
+                <ArticleCard kicker="Warm and Hot Buyers" title="Where intent is strongest" gold>{content.warmHotBuyers || 'No buyer-intent summary has been approved yet.'}</ArticleCard>
+                <div className="insight-grid">
+                  <InsightCard label="Contract Holders" value={content.contractHolders || 'TBC'}>Latest contract-holder signal.</InsightCard>
+                  <InsightCard label="Price Feedback" value={content.priceFeedback || 'TBC'}>Recurring price response themes.</InsightCard>
+                  <InsightCard label="Campaign Heat" value={content.campaignHeatDetail || campaign.campaignHeat || 'TBC'}>Current campaign traction read.</InsightCard>
+                  <InsightCard label="Source Basis" value={controlMap.feedback.sourceBasis || 'TBC'}>{controlMap.feedback.internalSummary || 'No internal basis recorded yet.'}</InsightCard>
+                </div>
               </div>
-
-              <div className="feedback-grid">
-                <FeedbackCard kicker="What’s landing well" variant="good">
-                  {content.positiveFeedback || 'Placeholder for the strongest recurring positives buyers are responding to, presentation, location, floorplan, emotional appeal, renovation quality, or value relative to alternatives.'}
-                </FeedbackCard>
-                <FeedbackCard kicker="What needs managing" variant="watchout">
-                  {content.watchouts || 'Placeholder for objections or recurring hesitation points that need to be handled through positioning, pricing discipline, or campaign communication.'}
-                </FeedbackCard>
-                <FeedbackCard kicker="Warm + hot buyers" gold chips={[{ label: `Contract holders: ${content.contractHolders || 'TBC'}`, className: 'hot' }, { label: `Price feedback: ${content.priceFeedback || 'TBC'}`, className: 'warm' }]}>
-                  {content.warmHotBuyers || 'This area will pull forward the buyers showing the strongest level of intent and make them impossible to miss.'}
-                </FeedbackCard>
-              </div>
-            </div>
-
-            <div className="panel">
-              <h2 className="section-title">Campaign Momentum</h2>
-              <p className="section-copy">
-                This will become the vendor-facing campaign momentum board powered by realestate.com.au and Domain reporting.
-              </p>
-              <div className="insight-grid">
-                <InsightCard label="Views" value={content.campaignViews || 'TBC'}>Audience attention over the campaign.</InsightCard>
-                <InsightCard label="Enquiries" value={content.campaignEnquiries || 'TBC'}>Serious buyer action and response levels.</InsightCard>
-                <InsightCard label="Saves / Favourites" value={content.campaignSaves || 'TBC'}>Early signal of buyer attachment.</InsightCard>
-                <InsightCard label="Campaign Heat" value={content.campaignHeatDetail || campaign.campaignHeat || 'TBC'} gold>A more dynamic, Momentum Lab-style read of campaign traction.</InsightCard>
-              </div>
-            </div>
+            ))}
           </div>
         </section>
 
         <section id="view-projections" className={`view view-anchor ${activeTab === 'projections' ? 'active' : ''}`}>
-          <div className="section-grid">
-            <div className="panel">
-              <h2 className="section-title">Projections</h2>
-              <p className="section-copy">
-                This section should present a forward-looking agency analysis based on current indicators, not fixed promises.
-                It should combine article sentiment, auction data, comparable-market movement, buyer feedback, and on-the-ground market feel.
-              </p>
-
-              <div className="projection-grid">
-                <ProjectionCard kicker="Near-Term Market Outlook" value={content.marketOutlook || 'TBC'}>Forward-looking view over the next 2-4 weeks based on the current data and article set.</ProjectionCard>
-                <ProjectionCard kicker="Buyer Behaviour Outlook" value={content.buyerBehaviourOutlook || 'TBC'}>Likely buyer behaviour if current conditions hold: urgency, hesitation, negotiation pressure, or selectivity.</ProjectionCard>
-                <ProjectionCard kicker="Pricing Pressure Watch" value={content.pricingPressureWatch || 'TBC'}>A read on whether the market is supporting the current guide, resisting it, or creating premium opportunity.</ProjectionCard>
-                <ProjectionCard kicker="Scenario Planning" value={content.scenarioPlanning || 'TBC'} gold>Conditional pathways such as if momentum strengthens, stays steady, or softens from here.</ProjectionCard>
+          <div className="panel">
+            <h2 className="section-title">Projections</h2>
+            <p className="section-copy">A balanced forward-looking view of likely conditions and the recommended strategic response.</p>
+            {renderApprovedSection(controlMap.projections, (
+              <div className="section-stack">
+                <ArticleCard kicker="Market Outlook" title="Near-term campaign outlook">{content.marketOutlook || 'No market outlook has been approved yet.'}</ArticleCard>
+                <ArticleCard kicker="Recommended Response" title="Our advised approach" gold>{content.recommendedResponse || campaign.recommendedStrategyBody || 'No strategic recommendation has been approved yet.'}</ArticleCard>
+                <div className="insight-grid">
+                  <InsightCard label="Buyer Behaviour" value={content.buyerBehaviourOutlook || 'TBC'}>Likely buyer posture if conditions hold.</InsightCard>
+                  <InsightCard label="Pricing Pressure" value={content.pricingPressureWatch || 'TBC'}>Read on whether the current guide is being supported.</InsightCard>
+                  <InsightCard label="Scenario Planning" value={content.scenarioPlanning || 'TBC'}>Conditional pathways from here.</InsightCard>
+                  <InsightCard label="Source Basis" value={controlMap.projections.sourceBasis || 'TBC'}>{controlMap.projections.internalSummary || 'No internal basis recorded yet.'}</InsightCard>
+                </div>
               </div>
-            </div>
-
-            <div className="panel">
-              <h2 className="section-title">Risks, Opportunities, Strategy</h2>
-              <p className="section-copy">This keeps the guidance balanced and clearly framed as professional interpretation of current conditions.</p>
-              <div className="projection-grid">
-                <ProjectionCard kicker="Risk Factors We’re Watching" value={content.riskFactors || 'TBC'}>Potential drags such as weaker clearance rates, rising stock, softer urgency, or stronger competing listings.</ProjectionCard>
-                <ProjectionCard kicker="Opportunity Factors" value={content.opportunityFactors || 'TBC'}>Positive forces such as thin quality stock, strong presentation, healthy enquiry, or standout local positioning.</ProjectionCard>
-                <ProjectionCard kicker="Recommended Agency Response" value={campaign.recommendedStrategyLabel || content.buyerBehaviourOutlook || 'TBC'} gold>{content.recommendedResponse || campaign.recommendedStrategyBody || 'The advised selling strategy based on the current balance of evidence, with language framed as analysis rather than certainty.'}</ProjectionCard>
-              </div>
-            </div>
+            ))}
           </div>
         </section>
 
         <section id="view-admin" className={`view view-anchor ${activeTab === 'admin' ? 'active' : ''}`}>
           <div className="panel">
             <h2 className="section-title">Admin Update</h2>
-            <p className="section-copy">The live editing controls now sit on the protected admin route, not inside this vendor-facing tab.</p>
-
-            <div className="article-grid">
-              <div className="article-card gold-card">
-                <span className="card-kicker">Use The Real Admin Surface</span>
-                <div className="article-title">This vendor-side tab is now read-only guidance</div>
-                <div className="muted">
-                  The buttons previously shown here were template placeholders only. Real save, upload, article intake, feedback extraction, and projection editing now live in the protected admin page for this campaign.
-                </div>
-                <div className="admin-actions">
-                  <a className="btn btn-primary" href={`/admin/campaigns/${campaign.slug}`}>Open campaign admin</a>
+            <p className="section-copy">Editing controls sit on the protected admin route so the vendor page stays presentation-first.</p>
+            <div className="section-stack">
+              <div className="admin-card">
+                <span className="card-kicker">Use the protected admin workspace</span>
+                <div className="article-title">Open the real campaign control surface</div>
+                <div className="muted">That is where your team should manage setup, evidence intake, editorial review, section approval, and campaign-specific updates.</div>
+                <div style={{ marginTop: 18 }}>
+                  <a className="mcgrath-link" href={`/admin/campaigns/${campaign.slug}`}>Open campaign admin</a>
                 </div>
               </div>
-
-              <AdminCard kicker="What To Use In Admin">
-                <div className="muted">Use the protected admin page for:</div>
-                <div className="muted muted-list">
-                  <div>Campaign settings and hero details</div>
-                  <div>Article URL intake and generated output content</div>
-                  <div>Weekly cumulative vendor report inputs</div>
-                  <div>REA, Domain, and McGrath Digital text/report inputs</div>
-                  <div>Projection and recommendation updates</div>
-                </div>
-              </AdminCard>
-
-              <AdminCard kicker="Why This Changed">
-                <div className="muted">
-                  The vendor route should stay presentation-first. The protected admin route is where real forms, save actions, uploads, and automation live so the editing workflow does not break the public campaign view.
-                </div>
-              </AdminCard>
             </div>
           </div>
         </section>
@@ -1090,9 +644,23 @@ function renderAgentBand(agents: Campaign['primaryAgents']) {
   ));
 }
 
-function HeroMetaCard({ value, label, warm = false }: { value: string; label: string; warm?: boolean }) {
+function renderApprovedSection(control: VendorSectionControl, children: React.ReactNode) {
+  if (control.status !== 'approved') {
+    return (
+      <div className="locked-card">
+        <span className="card-kicker">In Preparation</span>
+        <div className="article-title">This section is still being refined</div>
+        <div className="muted">The McGrath Lindfield team is still reviewing this section before it is presented as part of the live vendor-facing advisory view.</div>
+      </div>
+    );
+  }
+
+  return children;
+}
+
+function HeroMetaCard({ value, label }: { value: string; label: string }) {
   return (
-    <div className={`hero-meta-card ${warm ? 'heat-warm' : ''}`}>
+    <div className="hero-meta-card">
       <strong>{value}</strong>
       <span>{label}</span>
     </div>
@@ -1101,7 +669,7 @@ function HeroMetaCard({ value, label, warm = false }: { value: string; label: st
 
 function ArticleCard({ kicker, title, gold = false, children }: { kicker: string; title?: string; gold?: boolean; children: React.ReactNode }) {
   return (
-    <div className={`article-card ${gold ? 'gold-card' : ''}`}>
+    <div className={`article-card ${gold ? 'gold' : ''}`}>
       <span className="card-kicker">{kicker}</span>
       {title ? <div className="article-title">{title}</div> : null}
       <div className="muted">{children}</div>
@@ -1109,19 +677,9 @@ function ArticleCard({ kicker, title, gold = false, children }: { kicker: string
   );
 }
 
-function MetricCard({ label, value, gold = false, children }: { label: string; value: string; gold?: boolean; children: React.ReactNode }) {
+function InsightCard({ label, value, children }: { label: string; value: string; children: React.ReactNode }) {
   return (
-    <div className={`metric-card ${gold ? 'gold-card' : ''}`}>
-      <span className="metric-label">{label}</span>
-      <span className="metric-value">{value}</span>
-      <div className="muted">{children}</div>
-    </div>
-  );
-}
-
-function InsightCard({ label, value, gold = false, children }: { label: string; value: string; gold?: boolean; children: React.ReactNode }) {
-  return (
-    <div className={`insight-card ${gold ? 'gold-card' : ''}`}>
+    <div className="insight-card">
       <span className="tiny-label">{label}</span>
       <strong>{value}</strong>
       <div className="muted">{children}</div>
@@ -1129,84 +687,22 @@ function InsightCard({ label, value, gold = false, children }: { label: string; 
   );
 }
 
-function CompCard({ kicker, title, chip, chipClass, children }: { kicker: string; title: string; chip: string; chipClass?: string; children: React.ReactNode }) {
-  return (
-    <div className="comp-card">
-      <div className="comp-card-head">
-        <div>
-          <span className="card-kicker">{kicker}</span>
-          <div className="comp-title">{title}</div>
-        </div>
-        <div className={`chip ${chipClass || ''}`.trim()}>{chip}</div>
-      </div>
-      <div className="muted">{children}</div>
-    </div>
-  );
-}
+function indexControls(controls: VendorSectionControl[]) {
+  const fallback = (key: VendorSectionKey, label: string): VendorSectionControl => ({
+    key,
+    label,
+    status: 'draft',
+    lastUpdated: '',
+    internalSummary: '',
+    vendorSummary: '',
+    sourceBasis: '',
+  });
 
-function FeedbackCard({ kicker, variant, gold = false, chips, children }: { kicker: string; variant?: 'good' | 'watchout'; gold?: boolean; chips?: Array<{ label: string; className?: string }>; children: React.ReactNode }) {
-  return (
-    <div className={`feedback-card ${variant || ''} ${gold ? 'gold-card' : ''}`.trim()}>
-      <span className="card-kicker">{kicker}</span>
-      <div className="muted">{children}</div>
-      {chips?.length ? (
-        <div className="feedback-chip-row">
-          {chips.map((chip) => (
-            <div key={chip.label} className={`chip ${chip.className || ''}`.trim()}>{chip.label}</div>
-          ))}
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-function ProjectionCard({ kicker, value, gold = false, children }: { kicker: string; value: string; gold?: boolean; children: React.ReactNode }) {
-  return (
-    <div className={`projection-card ${gold ? 'gold-card' : ''}`}>
-      <span className="card-kicker">{kicker}</span>
-      <strong>{value}</strong>
-      <div className="muted">{children}</div>
-    </div>
-  );
-}
-
-function AdminCard({ kicker, children }: { kicker: string; children: React.ReactNode }) {
-  return (
-    <div className="admin-card">
-      <span className="card-kicker">{kicker}</span>
-      {children}
-    </div>
-  );
-}
-
-function renderSetupField(item: SetupItem) {
-  if (item.dualSelect && item.options) {
-    return (
-      <div className="form-grid">
-        <select defaultValue="">
-          <option value="" disabled>{item.placeholder}</option>
-          {item.options.map((option) => <option key={`primary-${option}`}>{option}</option>)}
-        </select>
-        <select defaultValue="">
-          <option value="" disabled>{item.secondaryPlaceholder}</option>
-          {item.options.map((option) => <option key={`secondary-${option}`}>{option}</option>)}
-        </select>
-      </div>
-    );
-  }
-
-  if (item.select && item.options) {
-    return (
-      <select defaultValue="">
-        <option value="" disabled>{item.placeholder}</option>
-        {item.options.map((option) => <option key={option}>{option}</option>)}
-      </select>
-    );
-  }
-
-  if (item.multiline) {
-    return <textarea placeholder={item.placeholder} />;
-  }
-
-  return <input type="text" placeholder={item.placeholder} />;
+  return {
+    updates: controls.find((control) => control.key === 'updates') || fallback('updates', 'Latest Updates'),
+    auction: controls.find((control) => control.key === 'auction') || fallback('auction', 'Auction Updates'),
+    competition: controls.find((control) => control.key === 'competition') || fallback('competition', 'Market Competition'),
+    feedback: controls.find((control) => control.key === 'feedback') || fallback('feedback', 'Buyer Feedback'),
+    projections: controls.find((control) => control.key === 'projections') || fallback('projections', 'Projections'),
+  };
 }
