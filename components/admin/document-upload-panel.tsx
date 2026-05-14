@@ -10,7 +10,7 @@ export function DocumentUploadPanel({ slug, history }: { slug: string; history: 
       </div>
       <h2 style={{ margin: '0 0 8px', fontSize: 24 }}>Campaign File Intake</h2>
       <p style={{ margin: '0 0 18px', color: 'var(--muted)', lineHeight: 1.6 }}>
-        This panel is where the real upload flow will live for vendor reports, REA reports, Domain reports, and McGrath Digital files.
+        Upload the weekly cumulative reports here, or paste their text directly for immediate extraction. Because the reports are cumulative, the latest report is the only one that matters operationally for current testing.
       </p>
 
       <form action={uploadCampaignDocumentAction} style={{ display: 'grid', gap: 14 }}>
@@ -30,8 +30,19 @@ export function DocumentUploadPanel({ slug, history }: { slug: string; history: 
           <div style={hintStyle}>PDF-first upload path. Weekly Vendor Report is the core combined buyer-feedback document.</div>
         </div>
 
+        <div style={fieldStyle}>
+          <label style={labelStyle}>Optional source title</label>
+          <input name="sourceTitle" style={inputStyle} type="text" placeholder="Week 3 Vendor Report / REA weekly summary / Domain snapshot" />
+        </div>
+
+        <div style={fieldStyle}>
+          <label style={labelStyle}>Paste extracted report text</label>
+          <textarea name="sourceText" style={textareaStyle} placeholder="Paste report text here for immediate extraction and summarisation. This is the fastest testing path until full PDF parsing is automated." />
+          <div style={hintStyle}>Use this for cumulative weekly reports. The latest report replaces the operational read, so you do not need prior weeks for the current output.</div>
+        </div>
+
         <div style={{ display: 'flex', gap: 12 }}>
-          <button type="submit" style={buttonStyle}>Upload PDF</button>
+          <button type="submit" style={buttonStyle}>Save report input</button>
         </div>
       </form>
 
@@ -67,6 +78,12 @@ const inputStyle = {
   background: 'rgba(255,255,255,0.86)',
   borderRadius: 14,
   padding: '12px 14px',
+} as const;
+
+const textareaStyle = {
+  ...inputStyle,
+  minHeight: 180,
+  resize: 'vertical' as const,
 } as const;
 
 const hintStyle = {

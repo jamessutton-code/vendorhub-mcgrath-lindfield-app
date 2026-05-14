@@ -53,6 +53,8 @@ create table if not exists article_sources (
   url text not null,
   title text,
   source_note text,
+  fetched_text text,
+  generated_summary text,
   published_at timestamptz,
   status text not null default 'active' check (status in ('active', 'archived')),
   created_at timestamptz not null default now()
@@ -122,9 +124,19 @@ create table if not exists uploads (
   processing_status text not null default 'pending'
 );
 
+create table if not exists upload_text_inputs (
+  id uuid primary key default gen_random_uuid(),
+  campaign_id uuid not null references campaigns(id) on delete cascade,
+  document_type text not null check (document_type in ('vendor_report', 'rea', 'domain', 'mcgrath_digital', 'other')),
+  title text,
+  source_text text not null,
+  created_at timestamptz not null default now()
+);
+
 create table if not exists vendor_report_extractions (
   id uuid primary key default gen_random_uuid(),
-  upload_id uuid not null references uploads(id) on delete cascade,
+  upload_id uuid references uploads(id) on delete cascade,
+  upload_text_input_id uuid references upload_text_inputs(id) on delete cascade,
   contracts_out text,
   warm_buyer_summary text,
   hot_buyer_summary text,

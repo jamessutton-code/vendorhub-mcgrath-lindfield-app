@@ -1,3 +1,4 @@
+import { fetchAndSummariseArticle } from '@/lib/automation';
 import { sampleCampaign } from '@/lib/mock-data';
 import { getSupabaseServerClient, getSupabaseServiceClient } from '@/lib/supabase-server';
 
@@ -211,9 +212,28 @@ export async function saveVendorOutputContent(slug: string, content: VendorOutpu
     .filter(Boolean);
 
   if (urls.length) {
-    await supabase.from('article_sources').insert(
-      urls.map((url) => ({ url, status: 'active' })),
-    );
+    for (const url of urls) {
+      const { fetchedText, summary } = await fetchAndSummariseArticle(url);
+      await supabase.from('article_sources').insert({
+        url,
+        status: 'active',
+        fetched_text: fetchedText || null,
+        generated_summary: summary || null,
+      });
+    }
+
+    const { data: activeArticles } = await supabase
+      .from('article_sources')
+      .select('id')
+      .eq('status', 'active')
+      .order('created_at', { ascending: true });
+
+    if ((activeArticles || []).length > 15) {
+      const overflow = activeArticles!.slice(0, activeArticles!.length - 15).map((article) => article.id);
+      if (overflow.length) {
+        await supabase.from('article_sources').delete().in('id', overflow);
+      }
+    }
   }
 }
 
