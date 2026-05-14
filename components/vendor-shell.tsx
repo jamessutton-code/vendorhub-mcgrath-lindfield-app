@@ -150,6 +150,7 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
   const primaryAgents = campaign.primaryAgents?.length ? campaign.primaryAgents : [];
   const supportAgent = campaign.supportAgent;
   const heroImages = campaign.heroImages?.length ? campaign.heroImages : [{ kind: 'hero1', url: campaign.heroImage, altText: campaign.address }];
+  const content = campaign.content || {};
 
   return (
     <>
@@ -861,12 +862,10 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
                   This tab stays tighter and cleaner by keeping the daily AI market brief here, while detailed auction-rate analysis can live in a cleaner dedicated view within the updates workflow.
                 </ArticleCard>
                 <ArticleCard kicker="AI Market Brief" title="Clear read on the current market">
-                  Placeholder for the daily AI-generated summary of buyer confidence, stock levels, competition intensity,
-                  and likely short-term direction in the Upper North Shore market.
+                  {content.latestUpdatesSummary || 'Placeholder for the daily AI-generated summary of buyer confidence, stock levels, competition intensity, and likely short-term direction in the Upper North Shore market.'}
                 </ArticleCard>
                 <ArticleCard kicker="What This Means For Your Campaign" title="Market interpretation for this vendor audience" gold>
-                  Placeholder for the AI-generated vendor-facing interpretation of the broader market: whether conditions favour urgency,
-                  patience, sharper pricing discipline, or a stronger focus on buyer depth and negotiation pressure.
+                  {content.latestUpdatesImplication || 'Placeholder for the AI-generated vendor-facing interpretation of the broader market: whether conditions favour urgency, patience, sharper pricing discipline, or a stronger focus on buyer depth and negotiation pressure.'}
                 </ArticleCard>
                 <ArticleCard kicker="Refresh Logic">
                   Market updates shown here will be prepared behind the scenes in the protected admin area,
@@ -880,9 +879,9 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
               <h2 className="section-title">Market Snapshot</h2>
               <p className="section-copy">A cleaner summary of the daily AI market brief without the auction detail cluttering the page.</p>
               <div className="metric-grid">
-                <MetricCard label="Stock Tone" value="TBC">AI summary of whether local supply feels tight, balanced, or building.</MetricCard>
-                <MetricCard label="Buyer Mood" value="TBC">AI read on the confidence level of active buyers in the market.</MetricCard>
-                <MetricCard label="Outlook" value={campaign.projectionHeadline || 'TBC'} gold>Forward-looking view refreshed daily from the current active article set.</MetricCard>
+                <MetricCard label="Stock Tone" value={content.stockTone || 'TBC'}>AI summary of whether local supply feels tight, balanced, or building.</MetricCard>
+                <MetricCard label="Buyer Mood" value={content.buyerMood || 'TBC'}>AI read on the confidence level of active buyers in the market.</MetricCard>
+                <MetricCard label="Outlook" value={content.outlook || campaign.projectionHeadline || 'TBC'} gold>Forward-looking view refreshed daily from the current active article set.</MetricCard>
               </div>
             </div>
           </div>
@@ -898,11 +897,10 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
               </p>
               <div className="article-grid">
                 <ArticleCard kicker="Auction Clearance Read" title="Sydney + local market pulse" gold>
-                  Placeholder for AI commentary combining Sydney clearance rates with local reads from SQM Research across the relevant campaign suburbs.
+                  {content.auctionHeadline || 'Placeholder for AI commentary combining Sydney clearance rates with local reads from SQM Research across the relevant campaign suburbs.'}
                 </ArticleCard>
                 <ArticleCard kicker="Update Logic">
-                  Auction data should refresh automatically each day at around 5:00 AM AEST on the same cadence as the latest news brief,
-                  so the vendor portal stays current even when commentary is being reworded from the same source set.
+                  {content.auctionCommentary || 'Auction data should refresh automatically each day at around 5:00 AM AEST on the same cadence as the latest news brief, so the vendor portal stays current even when commentary is being reworded from the same source set.'}
                 </ArticleCard>
               </div>
             </div>
@@ -911,9 +909,9 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
               <h2 className="section-title">Auction Pulse</h2>
               <p className="section-copy">A clear, vendor-friendly read of the weekly clearance environment.</p>
               <div className="metric-grid">
-                <MetricCard label="Sydney Clearance" value="TBC">Weekly Sydney clearance context sourced from SQM.</MetricCard>
-                <MetricCard label="Local Clearance" value="TBC">Combined read across the relevant local suburbs for this campaign.</MetricCard>
-                <MetricCard label="Auction Commentary" value="TBC" gold>Short AI interpretation of what those clearance rates mean for current conditions.</MetricCard>
+                <MetricCard label="Sydney Clearance" value={content.sydneyClearance || 'TBC'}>Weekly Sydney clearance context sourced from SQM.</MetricCard>
+                <MetricCard label="Local Clearance" value={content.localClearance || 'TBC'}>Combined read across the relevant local suburbs for this campaign.</MetricCard>
+                <MetricCard label="Auction Commentary" value={content.auctionPulse || 'TBC'} gold>Short AI interpretation of what those clearance rates mean for current conditions.</MetricCard>
               </div>
             </div>
           </div>
@@ -930,11 +928,10 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
 
               <div className="comp-grid">
                 <CompCard kicker="Comparable Group" title="Primary competition set" chip="On Market">
-                  Placeholder for the most directly relevant active competitors in the subject suburb and nearby premium pockets.
+                  {content.competitionOnMarket || 'Placeholder for the most directly relevant active competitors in the subject suburb and nearby premium pockets.'}
                 </CompCard>
                 <CompCard kicker="Sold Evidence" title="Recent result set" chip="Sold" chipClass="warm">
-                  Placeholder for selected sold comparables that help anchor buyer perception, pricing confidence,
-                  and likely campaign positioning.
+                  {content.competitionSold || 'Placeholder for selected sold comparables that help anchor buyer perception, pricing confidence, and likely campaign positioning.'}
                 </CompCard>
               </div>
             </div>
@@ -943,10 +940,10 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
               <h2 className="section-title">Competition Read</h2>
               <p className="section-copy">A simpler, more vendor-friendly interpretation of the local battleground.</p>
               <div className="insight-grid">
-                <InsightCard label="Most Relevant Stock" value="TBC">Will identify which listings genuinely matter to this campaign.</InsightCard>
-                <InsightCard label="Price Pressure" value="TBC">Will summarise where buyers may compare harder on value.</InsightCard>
-                <InsightCard label="Strategic Edge" value={campaign.compPrimarySuburb || 'TBC'} gold>{campaign.compNotes || 'Will highlight where this property can stand apart from direct rivals.'}</InsightCard>
-                <InsightCard label="Sold Benchmark" value="TBC">Will show which recent result best informs likely buyer expectations.</InsightCard>
+                <InsightCard label="Most Relevant Stock" value={campaign.compPrimarySuburb || 'TBC'}>Will identify which listings genuinely matter to this campaign.</InsightCard>
+                <InsightCard label="Price Pressure" value={content.pricePressure || 'TBC'}>Will summarise where buyers may compare harder on value.</InsightCard>
+                <InsightCard label="Strategic Edge" value={content.strategicEdge || campaign.compPrimarySuburb || 'TBC'} gold>{campaign.compNotes || 'Will highlight where this property can stand apart from direct rivals.'}</InsightCard>
+                <InsightCard label="Sold Benchmark" value={content.soldBenchmark || 'TBC'}>Will show which recent result best informs likely buyer expectations.</InsightCard>
               </div>
             </div>
           </div>
@@ -970,15 +967,13 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
 
               <div className="feedback-grid">
                 <FeedbackCard kicker="What’s landing well" variant="good">
-                  Placeholder for the strongest recurring positives buyers are responding to, presentation, location,
-                  floorplan, emotional appeal, renovation quality, or value relative to alternatives.
+                  {content.positiveFeedback || 'Placeholder for the strongest recurring positives buyers are responding to, presentation, location, floorplan, emotional appeal, renovation quality, or value relative to alternatives.'}
                 </FeedbackCard>
                 <FeedbackCard kicker="What needs managing" variant="watchout">
-                  Placeholder for objections or recurring hesitation points that need to be handled through positioning,
-                  pricing discipline, or campaign communication.
+                  {content.watchouts || 'Placeholder for objections or recurring hesitation points that need to be handled through positioning, pricing discipline, or campaign communication.'}
                 </FeedbackCard>
-                <FeedbackCard kicker="Warm + hot buyers" gold chips={[{ label: 'Hot buyers: TBC', className: 'hot' }, { label: 'Warm buyers: TBC', className: 'warm' }]}>
-                  This area will pull forward the buyers showing the strongest level of intent and make them impossible to miss.
+                <FeedbackCard kicker="Warm + hot buyers" gold chips={[{ label: `Contract holders: ${content.contractHolders || 'TBC'}`, className: 'hot' }, { label: `Price feedback: ${content.priceFeedback || 'TBC'}`, className: 'warm' }]}>
+                  {content.warmHotBuyers || 'This area will pull forward the buyers showing the strongest level of intent and make them impossible to miss.'}
                 </FeedbackCard>
               </div>
             </div>
@@ -989,10 +984,10 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
                 This will become the vendor-facing campaign momentum board powered by realestate.com.au and Domain reporting.
               </p>
               <div className="insight-grid">
-                <InsightCard label="Views" value="TBC">Audience attention over the campaign.</InsightCard>
-                <InsightCard label="Enquiries" value="TBC">Serious buyer action and response levels.</InsightCard>
-                <InsightCard label="Saves / Favourites" value="TBC">Early signal of buyer attachment.</InsightCard>
-                <InsightCard label="Campaign Heat" value="TBC" gold>A more dynamic, Momentum Lab-style read of campaign traction.</InsightCard>
+                <InsightCard label="Views" value={content.campaignViews || 'TBC'}>Audience attention over the campaign.</InsightCard>
+                <InsightCard label="Enquiries" value={content.campaignEnquiries || 'TBC'}>Serious buyer action and response levels.</InsightCard>
+                <InsightCard label="Saves / Favourites" value={content.campaignSaves || 'TBC'}>Early signal of buyer attachment.</InsightCard>
+                <InsightCard label="Campaign Heat" value={content.campaignHeatDetail || campaign.campaignHeat || 'TBC'} gold>A more dynamic, Momentum Lab-style read of campaign traction.</InsightCard>
               </div>
             </div>
           </div>
@@ -1008,10 +1003,10 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
               </p>
 
               <div className="projection-grid">
-                <ProjectionCard kicker="Near-Term Market Outlook" value="TBC">Forward-looking view over the next 2-4 weeks based on the current data and article set.</ProjectionCard>
-                <ProjectionCard kicker="Buyer Behaviour Outlook" value="TBC">Likely buyer behaviour if current conditions hold: urgency, hesitation, negotiation pressure, or selectivity.</ProjectionCard>
-                <ProjectionCard kicker="Pricing Pressure Watch" value="TBC">A read on whether the market is supporting the current guide, resisting it, or creating premium opportunity.</ProjectionCard>
-                <ProjectionCard kicker="Scenario Planning" value="TBC" gold>Conditional pathways such as if momentum strengthens, stays steady, or softens from here.</ProjectionCard>
+                <ProjectionCard kicker="Near-Term Market Outlook" value={content.marketOutlook || 'TBC'}>Forward-looking view over the next 2-4 weeks based on the current data and article set.</ProjectionCard>
+                <ProjectionCard kicker="Buyer Behaviour Outlook" value={content.buyerBehaviourOutlook || 'TBC'}>Likely buyer behaviour if current conditions hold: urgency, hesitation, negotiation pressure, or selectivity.</ProjectionCard>
+                <ProjectionCard kicker="Pricing Pressure Watch" value={content.pricingPressureWatch || 'TBC'}>A read on whether the market is supporting the current guide, resisting it, or creating premium opportunity.</ProjectionCard>
+                <ProjectionCard kicker="Scenario Planning" value={content.scenarioPlanning || 'TBC'} gold>Conditional pathways such as if momentum strengthens, stays steady, or softens from here.</ProjectionCard>
               </div>
             </div>
 
@@ -1019,9 +1014,9 @@ export function VendorShell({ campaign }: { campaign: Campaign }) {
               <h2 className="section-title">Risks, Opportunities, Strategy</h2>
               <p className="section-copy">This keeps the guidance balanced and clearly framed as professional interpretation of current conditions.</p>
               <div className="projection-grid">
-                <ProjectionCard kicker="Risk Factors We’re Watching" value="TBC">Potential drags such as weaker clearance rates, rising stock, softer urgency, or stronger competing listings.</ProjectionCard>
-                <ProjectionCard kicker="Opportunity Factors" value="TBC">Positive forces such as thin quality stock, strong presentation, healthy enquiry, or standout local positioning.</ProjectionCard>
-                <ProjectionCard kicker="Recommended Agency Response" value={campaign.recommendedStrategyLabel || 'TBC'} gold>{campaign.recommendedStrategyBody || 'The advised selling strategy based on the current balance of evidence, with language framed as analysis rather than certainty.'}</ProjectionCard>
+                <ProjectionCard kicker="Risk Factors We’re Watching" value={content.riskFactors || 'TBC'}>Potential drags such as weaker clearance rates, rising stock, softer urgency, or stronger competing listings.</ProjectionCard>
+                <ProjectionCard kicker="Opportunity Factors" value={content.opportunityFactors || 'TBC'}>Positive forces such as thin quality stock, strong presentation, healthy enquiry, or standout local positioning.</ProjectionCard>
+                <ProjectionCard kicker="Recommended Agency Response" value={campaign.recommendedStrategyLabel || content.buyerBehaviourOutlook || 'TBC'} gold>{content.recommendedResponse || campaign.recommendedStrategyBody || 'The advised selling strategy based on the current balance of evidence, with language framed as analysis rather than certainty.'}</ProjectionCard>
               </div>
             </div>
           </div>

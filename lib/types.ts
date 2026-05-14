@@ -15,6 +15,41 @@ export type CampaignImage = {
   sortOrder?: number;
 };
 
+export type VendorContent = {
+  latestUpdatesSummary?: string;
+  latestUpdatesImplication?: string;
+  stockTone?: string;
+  buyerMood?: string;
+  outlook?: string;
+  auctionHeadline?: string;
+  auctionCommentary?: string;
+  sydneyClearance?: string;
+  localClearance?: string;
+  auctionPulse?: string;
+  competitionOnMarket?: string;
+  competitionSold?: string;
+  pricePressure?: string;
+  strategicEdge?: string;
+  soldBenchmark?: string;
+  positiveFeedback?: string;
+  watchouts?: string;
+  warmHotBuyers?: string;
+  contractHolders?: string;
+  priceFeedback?: string;
+  campaignViews?: string;
+  campaignEnquiries?: string;
+  campaignSaves?: string;
+  campaignHeatDetail?: string;
+  marketOutlook?: string;
+  buyerBehaviourOutlook?: string;
+  pricingPressureWatch?: string;
+  scenarioPlanning?: string;
+  riskFactors?: string;
+  opportunityFactors?: string;
+  recommendedResponse?: string;
+  articleUrls?: string;
+};
+
 export type Campaign = {
   id?: string;
   slug: string;
@@ -53,6 +88,7 @@ export type Campaign = {
   recommendedStrategyLabel?: string;
   recommendedStrategyBody?: string;
   marketConditions?: string;
+  content?: VendorContent;
 };
 
 export type CampaignRecord = {

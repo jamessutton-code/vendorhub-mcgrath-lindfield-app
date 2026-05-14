@@ -1,5 +1,6 @@
 import { sampleCampaign } from '@/lib/mock-data';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
+import { getVendorOutputContent } from '@/lib/vendor-content';
 import type {
   Campaign,
   CampaignAgent,
@@ -31,7 +32,7 @@ export async function getCampaignBySlug(slug: string): Promise<Campaign | null> 
     return null;
   }
 
-  const [{ data: agents }, { data: images }, { data: compRules }, { data: projections }, { data: marketConditions }] = await Promise.all([
+  const [{ data: agents }, { data: images }, { data: compRules }, { data: projections }, { data: marketConditions }, content] = await Promise.all([
     supabase
       .from('campaign_agents')
       .select('role, name, profile_url, mobile, sort_order')
@@ -62,9 +63,10 @@ export async function getCampaignBySlug(slug: string): Promise<Campaign | null> 
       .order('effective_date', { ascending: false })
       .limit(1)
       .maybeSingle(),
+    getVendorOutputContent(slug),
   ]);
 
-  return mapCampaignRecord(data, agents || [], images || [], compRules || null, projections || null, marketConditions || null);
+  return mapCampaignRecord(data, agents || [], images || [], compRules || null, projections || null, marketConditions || null, content);
 }
 
 function mapCampaignRecord(
@@ -74,6 +76,7 @@ function mapCampaignRecord(
   compRules: CampaignCompRuleRecord | null,
   projections: CampaignProjectionRecord | null,
   marketConditions: MarketConditionsInputRecord | null,
+  content: Awaited<ReturnType<typeof getVendorOutputContent>>,
 ): Campaign {
   const mappedAgents: CampaignAgent[] = agents.map((agent) => ({
     role: agent.role,
@@ -136,6 +139,7 @@ function mapCampaignRecord(
     recommendedStrategyLabel: projections?.buyer_behaviour_outlook || undefined,
     recommendedStrategyBody: projections?.recommended_response || undefined,
     marketConditions: marketConditions?.notes || undefined,
+    content,
   };
 }
 
